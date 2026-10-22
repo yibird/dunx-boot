@@ -82,11 +82,10 @@
     "commit-msg": "bunx commitlint --edit \"$1\""
   },
   "lint-staged": {
-    "*.{js,ts}": [
-      "oxlint --fix",
-      "oxfmt --no-error-on-unmatched-pattern"
+    "src/**/*.{js,ts}": [
+      "oxlint --fix"
     ],
-    "*.{cjs,json,jsonc}": [
+    "*.{js,ts,cjs,json,jsonc}": [
       "oxfmt --no-error-on-unmatched-pattern"
     ]
   },
