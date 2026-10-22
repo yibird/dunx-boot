@@ -1,0 +1,92 @@
+{
+  "name": "dunx-boot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "build": "bun scripts/build.ts",
+    "test": "bun test",
+    "typecheck": "bun --check",
+    "lint": "oxlint",
+    "fmt": "oxfmt",
+    "check": "bun --check && oxlint && oxfmt --check",
+    "db:generate": "bunx drizzle-kit generate",
+    "db:migrate": "bunx drizzle-kit migrate",
+    "db:push": "bunx drizzle-kit push",
+    "db:seed": "bun scripts/seed.ts",
+    "db:up": "docker compose up -d postgres redis",
+    "db:down": "docker compose down",
+    "db:studio": "bunx drizzle-kit studio"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "4.0.99",
+    "@dicebear/collection": "9.4.3",
+    "@dicebear/core": "9.4.3",
+    "@dunx/auth": "^3.10.4",
+    "@dunx/core": "^3.10.4",
+    "@dunx/dashboard": "^3.10.4",
+    "@dunx/http": "^3.10.4",
+    "@dunx/infra": "^3.10.4",
+    "@dunx/openapi": "^3.10.4",
+    "@dunx/transform": "^3.10.4",
+    "@mastra/core": "1.77.0",
+    "@opentelemetry/api": "^1.10.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.300.0",
+    "@opentelemetry/resources": "^3.0.0",
+    "@opentelemetry/sdk-trace-node": "^2.12.0",
+    "@types/picomatch": "^4.0.3",
+    "@zvec/zvec": "^0.7.1",
+    "bullmq": "6.3.4",
+    "date-fns": "^4.4.0",
+    "drizzle-orm": "1.0.0-rc.5-ab785fc",
+    "drizzle-uncache": "^2.0.0",
+    "es-toolkit": "^1.52.0",
+    "hyperid": "^4.0.0",
+    "ioredis": "6.0.0",
+    "ip2region": "^2.3.0",
+    "jose": "^6.2.13",
+    "picomatch": "^4.0.7",
+    "qrcode": "^1.5.4",
+    "svg-captcha": "^1.4.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@dunx/testing": "^3.10.4",
+    "@scalar/api-reference": "^1.75.1",
+    "@types/bun": ">=1.4.2",
+    "@types/qrcode": "^1.5.6",
+    "bun-types": "^1.4.3",
+    "commitizen": "^4.3.2",
+    "conventional-changelog": "^8.1.3",
+    "cz-git": "^1.14.0",
+    "drizzle-kit": "1.0.0-rc.5-ab785fc",
+    "lint-staged": "^17.6.0",
+    "oxfmt": "^0.64.0",
+    "oxlint": "^1.89.0",
+    "pg": "^8.23.1",
+    "simple-git-hooks": "^2.14.0",
+    "typescript": "^7.0.2"
+  },
+  "overrides": {
+    "@opentelemetry/api": "^1.9.1"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "oxlint --fix",
+      "oxfmt --no-error-on-unmatched-pattern"
+    ],
+    "*.{cjs,json,jsonc}": [
+      "oxfmt --no-error-on-unmatched-pattern"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-git"
+    }
+  },
+  "engines": {
+    "bun": ">=1.4.2"
+  }
+}

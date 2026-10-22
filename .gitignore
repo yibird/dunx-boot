@@ -1,0 +1,28 @@
+# 依赖与构建产物
+node_modules
+dist
+coverage
+.bun-temp
+
+# 运行产物
+*.log
+logs
+storage
+
+.env.local
+
+# ---- Editor directories and files ----
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# ---- Misc ----
+*.tgz
+*.zip
+*.tar.gz
+*.rar

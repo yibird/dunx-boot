@@ -1,0 +1,93 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: '123456'
+      POSTGRES_DB: dunx-boot
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d dunx-boot']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:8-alpine
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    hostname: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+  rustfs-volume-init:
+    image: alpine:3.22
+    volumes:
+      - rustfs-data:/data
+      - rustfs-logs:/app/logs
+    command: chown -R 10001:10001 /data /app/logs
+    restart: 'no'
+
+  rustfs:
+    image: rustfs/rustfs:latest
+    depends_on:
+      rustfs-volume-init:
+        condition: service_completed_successfully
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ADDRESS: 0.0.0.0:9000
+      RUSTFS_CONSOLE_ADDRESS: 0.0.0.0:9001
+      RUSTFS_CONSOLE_ENABLE: 'true'
+      RUSTFS_ACCESS_KEY: rustfsadmin
+      RUSTFS_SECRET_KEY: rustfsadmin
+      RUSTFS_OBS_LOGGER_LEVEL: info
+      RUSTFS_OBS_LOG_DIRECTORY: /app/logs
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - rustfs-data:/data
+      - rustfs-logs:/app/logs
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'curl -fsS http://127.0.0.1:9000/health && curl -fsS http://127.0.0.1:9001/rustfs/console/health',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  rabbitmq-data:
+  rustfs-data:
+  rustfs-logs:

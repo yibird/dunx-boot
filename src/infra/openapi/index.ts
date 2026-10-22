@@ -1,0 +1,1 @@
+export { createOpenApiModule } from './module'

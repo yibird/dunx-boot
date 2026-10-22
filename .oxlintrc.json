@@ -1,0 +1,56 @@
+{
+  "env": {
+    "es2024": true,
+    "node": true
+  },
+  "globals": {
+    "Bun": "readonly"
+  },
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "plugins": [
+    "eslint",
+    "typescript",
+    "unicorn",
+    "import",
+    "promise",
+    "oxc",
+    "node"
+  ],
+  "rules": {
+    "no-console": "off",
+    "no-unused-expressions": "error",
+    "typescript/no-explicit-any": "error",
+    "import/no-cycle": "error",
+
+    "oxc/no-barrel-file": "off",
+    "no-await-in-loop": "off",
+    "unicorn/prefer-add-event-listener": "off",
+    "unicorn/no-array-sort": "off",
+    "typescript/no-extraneous-class": "off"
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**/*.ts"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ],
+  "options": {
+    "reportUnusedDisableDirectives": "error"
+  },
+  "ignorePatterns": [
+    "**/*",
+    "!src",
+    "!src/**",
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    "coverage/**",
+    "logs/**"
+  ]
+}

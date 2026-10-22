@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ESNext"],
+    "types": ["bun"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@infra/*": ["./src/infra/*"],
+      "@features/*": ["./src/features/*"],
+      "@middleware/*": ["./src/middleware/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@constants/*": ["./src/constants/*"],
+      "#types/*": ["./types/*"]
+    }
+  },
+
+  "include": ["src", "test", "types", "config"],
+  "exclude": ["node_modules"]
+}
