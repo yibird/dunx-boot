@@ -102,9 +102,23 @@ export const cors = z.object({
 })
 
 /**
+ * csrf配置
+ */
+export const csrf = z
+  .union([
+    z.boolean(),
+    z.object({
+      trustedOrigins: z.array(z.string()),
+    }),
+  ])
+  .optional()
+
+/**
  * 安全配置
  */
 export const security = z.object({
   auth,
   cors,
+  securityHeaders: z.coerce.boolean().default(true),
+  csrf,
 })

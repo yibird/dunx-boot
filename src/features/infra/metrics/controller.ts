@@ -68,4 +68,21 @@ export class SysMetricsController {
     const res = this.metricsService.getQueueMetrics()
     return Response.json(Api.ok(res), { status: ApiStatus.OK })
   }
+
+  /**
+   * Prometheus / OpenMetrics 抓取端点。
+   *
+   * 返回纯文本，不是 JSON 信封；路径已加入 `security.auth.whiteList`。
+   */
+  @Get('/openmetrics')
+  @ApiDoc({ summary: 'Prometheus OpenMetrics 指标' })
+  async openMetrics() {
+    const text = await this.metricsService.openMetrics()
+    return new Response(text, {
+      status: ApiStatus.OK,
+      headers: {
+        'content-type': 'text/plain; version=0.0.4; charset=utf-8',
+      },
+    })
+  }
 }

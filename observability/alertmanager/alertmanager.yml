@@ -1,0 +1,11 @@
+route:
+  receiver: default
+  group_by: ['alertname']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+
+receivers:
+  # 默认吞掉告警（Prometheus UI 仍能看到 firing）。
+  # 接 Slack / 邮件 / webhook 时在这里补 receiver 并在 route 里引用。
+  - name: default

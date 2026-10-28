@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { createSelectSchema } from 'drizzle-orm/zod'
 import { commonColumns, commonColumnsSchema } from '@/schemas/common'
 import { bigintString, datetime } from '@/schemas/types'
-import { PM_TASK_PRIORITY, PM_TASK_STATUS } from '@/features/pm/task/constant'
+import { PM_TASK_PRIORITY, PM_TASK_STATUS } from '@/constants'
 
 /**
  * 任务表：`parent_id` 指向父任务，为空表示顶层任务。
@@ -30,11 +30,11 @@ export const pmTask = pgTable(
     /**
      * 任务状态：1 待办 2 进行中 3 已完成 4 已取消。
      */
-    status: smallint('status').default(PM_TASK_STATUS.TODO).notNull(),
+    status: smallint('status').default(PM_TASK_STATUS.Todo).notNull(),
     /**
      * 任务优先级：1 低 2 中 3 高 4 紧急。
      */
-    priority: smallint('priority').default(PM_TASK_PRIORITY.MEDIUM).notNull(),
+    priority: smallint('priority').default(PM_TASK_PRIORITY.Medium).notNull(),
     /**
      * 任务负责人。
      */
@@ -77,25 +77,25 @@ export const pmTaskSchema = createSelectSchema(pmTask, {
     .meta({ description: '任务描述', examples: ['完成登录页视觉稿'] }),
   status: z
     .union([
-      z.literal(PM_TASK_STATUS.TODO),
-      z.literal(PM_TASK_STATUS.IN_PROGRESS),
-      z.literal(PM_TASK_STATUS.DONE),
-      z.literal(PM_TASK_STATUS.CANCELED),
+      z.literal(PM_TASK_STATUS.Todo),
+      z.literal(PM_TASK_STATUS.InProgress),
+      z.literal(PM_TASK_STATUS.Done),
+      z.literal(PM_TASK_STATUS.Canceled),
     ])
     .meta({
       description: '任务状态：1 待办 2 进行中 3 已完成 4 已取消',
-      examples: [PM_TASK_STATUS.TODO],
+      examples: [PM_TASK_STATUS.Todo],
     }),
   priority: z
     .union([
-      z.literal(PM_TASK_PRIORITY.LOW),
-      z.literal(PM_TASK_PRIORITY.MEDIUM),
-      z.literal(PM_TASK_PRIORITY.HIGH),
-      z.literal(PM_TASK_PRIORITY.URGENT),
+      z.literal(PM_TASK_PRIORITY.Low),
+      z.literal(PM_TASK_PRIORITY.Medium),
+      z.literal(PM_TASK_PRIORITY.High),
+      z.literal(PM_TASK_PRIORITY.Urgent),
     ])
     .meta({
       description: '任务优先级：1 低 2 中 3 高 4 紧急',
-      examples: [PM_TASK_PRIORITY.MEDIUM],
+      examples: [PM_TASK_PRIORITY.Medium],
     }),
   assigneeId: z
     .string()

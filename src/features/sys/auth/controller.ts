@@ -12,32 +12,34 @@ import {
   sysAuthPhoneRegisterReqSchema,
   sysAuthSessionSchema,
   sysAuthSmsCaptchaReqSchema,
+  sysAuthSmsCaptchaRespSchema,
 } from './schema'
 import { SysAuthService } from './service'
 
 export const routes = {
   imageCaptcha: {
+    status: ApiStatus.OK,
     response: apiRouteResponse(sysAuthImageCaptchaRespSchema),
   },
   smsCaptcha: {
     status: ApiStatus.OK,
     body: sysAuthSmsCaptchaReqSchema,
-    response: apiRouteResponse(sysAuthSmsCaptchaReqSchema),
+    response: apiRouteResponse(sysAuthSmsCaptchaRespSchema),
   },
   accountRegister: {
     status: ApiStatus.OK,
     body: sysAuthAccountRegisterReqSchema,
-    response: apiRouteResponse(),
+    response: apiRouteResponse(sysAuthSessionSchema),
   },
   emailRegister: {
     status: ApiStatus.OK,
     body: sysAuthEmailRegisterReqSchema,
-    response: apiRouteResponse(),
+    response: apiRouteResponse(sysAuthSessionSchema),
   },
   phoneRegister: {
     status: ApiStatus.OK,
     body: sysAuthPhoneRegisterReqSchema,
-    response: apiRouteResponse(),
+    response: apiRouteResponse(sysAuthSessionSchema),
   },
   accountLogin: {
     status: ApiStatus.OK,
@@ -45,6 +47,7 @@ export const routes = {
     response: apiRouteResponse(sysAuthSessionSchema),
   },
   devLogin: {
+    status: ApiStatus.OK,
     response: apiRouteResponse(sysAuthSessionSchema),
   },
   phoneLogin: {
@@ -53,10 +56,11 @@ export const routes = {
     response: apiRouteResponse(sysAuthSessionSchema),
   },
   logout: {
+    status: ApiStatus.OK,
     response: apiRouteResponse(),
   },
   qrLogin: { response: apiRouteResponse(sysAuthSessionSchema) },
-}
+} as const
 
 /**
  * 认证控制器:验证码、注册、账号/手机号/扫码登录、刷新、退出与当前用户。
@@ -70,69 +74,68 @@ export class SysAuthController {
   @Get('/captcha/image', routes.imageCaptcha)
   async getImageCaptcha({ req }: Input) {
     const res = await this.authService.createImageCaptcha(req)
-    return Response.json(Api.ok(res), { status: ApiStatus.OK })
+    return Api.ok(res)
   }
 
   @ApiDoc({ summary: '获取短信验证码' })
   @Post('/captcha/sms', routes.smsCaptcha)
   async getSmsCaptcha({ body, req }: Input<typeof routes.smsCaptcha>) {
     const res = await this.authService.smsCaptcha(body.phone, req)
-    return Response.json(Api.ok(res), { status: ApiStatus.OK })
+    return Api.ok(res)
   }
 
   @ApiDoc({ summary: '账号密码注册' })
   @Post('/register/account', routes.accountRegister)
   async accountRegister({ body }: Input<typeof routes.accountRegister>) {
     const res = await this.authService.accountRegister(body)
-    return Response.json(Api.ok(res), { status: ApiStatus.OK })
+    return Api.ok(res)
   }
 
   @ApiDoc({ summary: '邮箱密码注册' })
   @Post('/register/email', routes.emailRegister)
   async emailRegister({ body }: Input<typeof routes.emailRegister>) {
     const res = await this.authService.emailRegister(body)
-    return Response.json(Api.ok(res), { status: ApiStatus.OK })
+    return Api.ok(res)
   }
 
   @ApiDoc({ summary: '手机号密码注册' })
   @Post('/register/phone', routes.phoneRegister)
   async phoneRegister({ body }: Input<typeof routes.phoneRegister>) {
     const res = await this.authService.phoneRegister(body)
-    return Response.json(Api.ok(res), { status: ApiStatus.OK })
+    return Api.ok(res)
   }
 
   @ApiDoc({ summary: '账号密码登录' })
   @Post('/login', routes.accountLogin)
   async accountLogin(input: Input<typeof routes.accountLogin>) {
     const res = await this.authService.login(input.body, input.req)
-    return Response.json(Api.ok(res), { status: ApiStatus.OK })
+    return Api.ok(res)
   }
 
   @ApiDoc({ summary: '开发快速登录' })
   @Post('/devLogin', routes.devLogin)
-  async devLogin({ req }: Input<{}>) {
+  async devLogin({ req }: Input) {
     const res = await this.authService.devLogin(req)
-    return Response.json(Api.ok(res), { status: ApiStatus.OK })
+    return Api.ok(res)
   }
 
   @ApiDoc({ summary: '手机号登录' })
   @Post('/login/phone', routes.phoneLogin)
   async phoneLogin(input: Input<typeof routes.phoneLogin>) {
     const res = await this.authService.phoneLogin(input.body, input.req)
-    return Response.json(Api.ok(res), { status: ApiStatus.OK })
+    return Api.ok(res)
   }
 
   @ApiDoc({ summary: '退出登录' })
   @Post('/logout', routes.logout)
   async logout({ req }: Input<{}>) {
-    const res = await this.authService.logout(req)
-    return Response.json(Api.ok(res), { status: ApiStatus.OK })
+    return this.authService.logout(req)
   }
 
   @ApiDoc({ summary: '获取扫码登录二维码' })
   @Get('/qr', routes.qrLogin)
   async qrLogin({ req }: Input<{}>) {
     const res = await this.authService.devLogin(req)
-    return Response.json(Api.ok(res), { status: ApiStatus.OK })
+    return Api.ok(res)
   }
 }

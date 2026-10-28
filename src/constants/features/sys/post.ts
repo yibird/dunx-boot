@@ -3,19 +3,19 @@
  */
 export const SYS_POST_LEVEL = {
   // 实习
-  INTERN: 1,
+  Intern: 1,
   // 初级
-  JUNIOR: 2,
+  Junior: 2,
   // 中级
-  INTERMEDIATE: 3,
+  Intermediate: 3,
   // 高级
-  SENIOR: 4,
+  Senior: 4,
   // 专家
-  EXPERT: 5,
+  Expert: 5,
   // 资深专家
-  SENIOR_EXPERT: 6,
+  SeniorExpert: 6,
   // 首席
-  PRINCIPAL: 6,
+  Principal: 7,
 } as const
 
 export type SysPOstLevel = ValueOf<typeof SYS_POST_LEVEL>

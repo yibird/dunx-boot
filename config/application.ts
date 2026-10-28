@@ -10,6 +10,7 @@ import type {
   LogConfig,
   QueueConfig,
   RedisConfig,
+  RequestLogConfig,
   ResilienceConfig,
   ScheduleConfig,
   SecurityConfig,
@@ -19,11 +20,7 @@ import type {
 } from '@/infra/config'
 
 /**
- * 基础层：只写默认值，不读环境变量。
- *
- * 会随机器或部署变化的值（数据库、Redis、密钥、对外地址）由
- * `config/application-<env>.ts` 提供，那里也只在必要时读 `.env`。
- * 这里写下的每个键都必须真的被某个模块读走，否则就是死旋钮。
+ * 应用配置
  */
 const application: ApplicationConfig = {
   name: 'dunx-boot',
@@ -31,8 +28,7 @@ const application: ApplicationConfig = {
 }
 
 /**
- * 请求/响应体默认不记：日志一旦开了 body，就等于把业务数据写进了日志系统。
- * 需要联调的环境在自己的覆盖层里打开。
+ * 日志配置
  */
 const log: Partial<LogConfig> = {
   level: 'info',
@@ -41,7 +37,7 @@ const log: Partial<LogConfig> = {
 }
 
 /**
- * 采集地址由环境覆盖层提供；未配置地址时保持 NoopTracer。
+ * 链路追踪配置
  */
 const tracing: Partial<TracingConfig> = {
   enabled: true,
@@ -49,6 +45,18 @@ const tracing: Partial<TracingConfig> = {
   exportTimeoutMs: 2000,
 }
 
+/**
+ * 请求日志配置
+ */
+const requestLog: Partial<RequestLogConfig> = {
+  retentionDays: 30,
+  sampleRate: 1,
+  slowMs: 1000,
+}
+
+/**
+ * 服务配置
+ */
 const server: Partial<ServerConfig> = {
   port: 3000,
   idleTimeout: 30,
@@ -56,6 +64,9 @@ const server: Partial<ServerConfig> = {
   trustProxy: false,
 }
 
+/**
+ * 缓存配置
+ */
 const cache: Partial<CacheConfig> = {
   local: {
     enabled: true,
@@ -68,7 +79,9 @@ const cache: Partial<CacheConfig> = {
   ttl: 60,
 }
 
-// 默认不开放跨域（`security.cors` 整块不写），需要的环境自己声明 `origin`
+/**
+ * 安全配置
+ */
 const security: DeepPartial<SecurityConfig> = {
   auth: {
     accessTtl: 1800,
@@ -81,10 +94,19 @@ const security: DeepPartial<SecurityConfig> = {
     /*
      * 白名单列表
      */
-    whiteList: ['/api/docs', '/api/openapi.json', '/api/auth/**'],
+    whiteList: [
+      '/api/docs',
+      '/api/openapi.json',
+      '/api/auth/**',
+      '/api/metrics/openmetrics',
+    ],
   },
+  csrf: false,
 }
 
+/**
+ * redis配置
+ */
 const redis: Partial<RedisConfig> = {
   connectionTimeout: 2000,
   maxRetries: 1,
@@ -92,17 +114,26 @@ const redis: Partial<RedisConfig> = {
   eager: false,
 }
 
+/**
+ * 调度配置
+ */
 const schedule: Partial<ScheduleConfig> = {
   enabled: true,
   tz: 'UTC',
   keepAlive: true,
 }
 
+/**
+ * 健康检查配置
+ */
 const health: Partial<HealthConfig> = {
   timeoutMs: 2000,
   drainDelayMs: 0,
 }
 
+/**
+ * 弹性保护配置
+ */
 const resilience: DeepPartial<ResilienceConfig> = {
   timeoutMs: 5000,
   maxRetries: 2,
@@ -115,8 +146,7 @@ const resilience: DeepPartial<ResilienceConfig> = {
 }
 
 /**
- * 出站客户端默认不重试：重试非幂等请求（POST）可能把一次写变成两次，
- * 需要重试的调用方在单次请求上显式打开。
+ * 客户端配置
  */
 const client: Partial<ClientConfig> = {
   timeoutMs: 30_000,
@@ -124,6 +154,9 @@ const client: Partial<ClientConfig> = {
   retryDelayMs: 200,
 }
 
+/**
+ * 队列配置
+ */
 const queue: Partial<QueueConfig> = {
   prefix: 'bull',
   consume: false,
@@ -165,6 +198,7 @@ export default {
   application,
   log,
   tracing,
+  requestLog,
   server,
   cache,
   security,

@@ -10,10 +10,16 @@ import {
   TokenUtils,
   WebUtils,
 } from '@/utils'
-import { REDIS_KEY_PREFIX, REDIS_KEY_TTL } from '@/constants'
-import { SysAuthRepository } from './repository'
+import {
+  REDIS_KEY_PREFIX,
+  REDIS_KEY_TTL,
+  SYS_CAPTCHA_TYPE,
+  SYS_LOGIN_PLATFORM,
+  SYS_LOGIN_TYPE,
+  type SysLoginPlatform,
+} from '@/constants'
+import { SysAuthRepository, type SysUserRow } from './repository'
 import { SysRoleRepository } from '../role/repository'
-import { SYS_CAPTCHA_TYPE } from './constant'
 import type {
   SysAuthAccountLoginReq,
   SysAuthAccountRegisterReq,
@@ -27,11 +33,6 @@ import { SysCaptchaLogEvent, SysLoginLogEvent } from '@/events'
 import { SysUserRepository } from '../user/repository'
 import type { SysLoginLogEventPayload } from '@/events'
 import type { SessionContext } from '@/infra/context'
-import {
-  SYS_LOGIN_PLATFORM,
-  SYS_LOGIN_TYPE,
-  type SysLoginPlatform,
-} from '../login-log/constant'
 
 /**
  * 认证业务层
@@ -57,7 +58,7 @@ export class SysAuthService {
    * @returns 是否校验通过
    */
   async #verifyImageCaptcha(captchaId: string, inputCaptcha: string) {
-    const key = REDIS_KEY_PREFIX.IMAGE_CAPTCHA(captchaId)
+    const key = REDIS_KEY_PREFIX.ImageCaptcha(captchaId)
     const captcha = await this.redis.get(key)
     return captcha === inputCaptcha
   }
@@ -70,17 +71,12 @@ export class SysAuthService {
    * @returns 是否校验通过
    */
   async #verifySmsCaptcha(captchaId: string, inputCaptcha: string) {
-    const key = REDIS_KEY_PREFIX.SMS_CAPTCHA(captchaId)
+    const key = REDIS_KEY_PREFIX.SmsCaptcha(captchaId)
     const captcha = await this.redis.get(key)
     return captcha === inputCaptcha
   }
 
-  async #issue(user: {
-    id: string
-    account: string
-    tenantId: string | null
-    roleId?: string | null
-  }) {
+  async #issue(user: SysUserRow) {
     // 1.查询角色权限
     const permissions = await this.roleRepository.getPermissions(user.roleId)
     // 2.签发令牌
@@ -93,8 +89,8 @@ export class SysAuthService {
       permissions,
     })
     // 3.redis存储令牌
-    const accessTokenKey = REDIS_KEY_PREFIX.ACCOUNT_TOKEN(accessToken)
-    const refreshTokenKey = REDIS_KEY_PREFIX.REFRESH_TOKEN(refreshToken)
+    const accessTokenKey = REDIS_KEY_PREFIX.AccountToken(accessToken)
+    const refreshTokenKey = REDIS_KEY_PREFIX.RefreshToken(refreshToken)
     const { accessTtl, refreshTtl } = TokenUtils.getConfig()
     const [accessTokenRes, refreshTokenRes] = await Promise.all([
       this.redis.set(accessTokenKey, accessToken, {
@@ -105,7 +101,20 @@ export class SysAuthService {
       }),
     ])
     AssertUtils.notNull(accessTokenRes || refreshTokenRes, '登录失败')
-    return { accessToken, refreshToken }
+    return {
+      accessToken,
+      refreshToken,
+      tokenType: 'Bearer' as const,
+      user: {
+        id: user.id,
+        account: user.account,
+        nickname: user.nickname,
+        avatar: user.avatar,
+        phone: user.phone,
+        tenantId: user.tenantId,
+        roleId: user.roleId,
+      },
+    }
   }
 
   /**
@@ -130,9 +139,9 @@ export class SysAuthService {
     const captchaId = IdUtils.shortId()
 
     // 2.redis存储验证码
-    const key = REDIS_KEY_PREFIX.IMAGE_CAPTCHA(captchaId)
+    const key = REDIS_KEY_PREFIX.ImageCaptcha(captchaId)
     await this.redis.set(key, text, {
-      ex: REDIS_KEY_TTL.IMAGE_CAPTCHA,
+      ex: REDIS_KEY_TTL.ImageCaptcha,
     })
 
     // 3.异步插入验证码日志（验证码本身是凭据，不随事件传递）
@@ -140,8 +149,8 @@ export class SysAuthService {
       new SysCaptchaLogEvent(
         {
           captchaId,
-          captchaType: SYS_CAPTCHA_TYPE.IMAGE,
-          ttl: REDIS_KEY_TTL.IMAGE_CAPTCHA,
+          captchaType: SYS_CAPTCHA_TYPE.Image,
+          ttl: REDIS_KEY_TTL.ImageCaptcha,
         },
         req
       )
@@ -159,26 +168,26 @@ export class SysAuthService {
   async smsCaptcha(phone: string, req: Bun.BunRequest) {
     const code = CaptchaUtils.randomText(6, '0123456789')
     const captchaId = IdUtils.shortId()
-    const key = REDIS_KEY_PREFIX.SMS_CAPTCHA(captchaId)
+    const key = REDIS_KEY_PREFIX.SmsCaptcha(captchaId)
     await this.redis.set(key, code, {
-      ex: REDIS_KEY_TTL.SMS_CAPTCHA,
+      ex: REDIS_KEY_TTL.SmsCaptcha,
     })
 
     this.eventBus.emit(
       new SysCaptchaLogEvent(
         {
           captchaId,
-          captchaType: SYS_CAPTCHA_TYPE.SMS,
+          captchaType: SYS_CAPTCHA_TYPE.Sms,
           target: phone,
-          ttl: REDIS_KEY_TTL.SMS_CAPTCHA,
+          ttl: REDIS_KEY_TTL.SmsCaptcha,
         },
         req
       )
     )
-    return Api.ok({
+    return {
       captchaId,
-      expiresIn: REDIS_KEY_TTL.SMS_CAPTCHA,
-    })
+      expiresIn: REDIS_KEY_TTL.SmsCaptcha,
+    }
   }
 
   /**
@@ -273,7 +282,7 @@ export class SysAuthService {
    */
   async login(input: SysAuthAccountLoginReq, req: Bun.BunRequest) {
     const payload: SysLoginLogEventPayload = {
-      loginType: SYS_LOGIN_TYPE.PASSWORD_LOGIN,
+      loginType: SYS_LOGIN_TYPE.Password,
       payload: { account: input.account },
       platform: input.platform as SysLoginPlatform,
       username: input.account,
@@ -317,7 +326,7 @@ export class SysAuthService {
 
   async devLogin(req: Bun.BunRequest) {
     const { captchaId } = await this.createImageCaptcha(req)
-    const key = REDIS_KEY_PREFIX.IMAGE_CAPTCHA(captchaId)
+    const key = REDIS_KEY_PREFIX.ImageCaptcha(captchaId)
     const captcha = await this.redis.get(key)
     AssertUtils.notNull(captcha, '验证码不存在')
     return this.login(
@@ -326,7 +335,7 @@ export class SysAuthService {
         password: '123456',
         captchaId,
         captcha,
-        platform: SYS_LOGIN_PLATFORM.WEB,
+        platform: SYS_LOGIN_PLATFORM.Web,
       },
       req
     )
@@ -340,7 +349,7 @@ export class SysAuthService {
    */
   async phoneLogin(input: SysAuthPhoneLoginReq, req: Bun.BunRequest) {
     const payload: SysLoginLogEventPayload = {
-      loginType: SYS_LOGIN_TYPE.SMS_LOGIN,
+      loginType: SYS_LOGIN_TYPE.Sms,
       platform: input.platform as SysLoginPlatform,
       status: true,
       username: input.phone,

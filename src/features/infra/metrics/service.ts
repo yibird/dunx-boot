@@ -1,8 +1,11 @@
 import { RuntimeStats } from '@dunx/core'
-import { RequestMetrics } from '@dunx/http'
+import { HealthRegistry, RequestMetrics } from '@dunx/http'
 import { CacheMetrics } from '@dunx/infra/cache'
 import { RedisMetrics } from '@dunx/infra/redis'
 import { QueueMetrics } from '@dunx/infra/queue'
+import { QueryMetrics } from '@/infra/db/query-metrics'
+import { BunSQLDatabase } from 'drizzle-orm/bun-sql/postgres'
+import { renderOpenMetrics } from './openmetrics'
 import type {
   SysCacheMetrics,
   SysMetrics,
@@ -22,8 +25,54 @@ export class SysMetricsService {
     private readonly runtimeStats: RuntimeStats,
     private readonly cacheMetrics: CacheMetrics,
     private readonly redisMetrics: RedisMetrics,
-    private readonly queueMetrics: QueueMetrics
+    private readonly queueMetrics: QueueMetrics,
+    private readonly queryMetrics: QueryMetrics,
+    private readonly db: BunSQLDatabase,
+    private readonly health: HealthRegistry
   ) {}
+
+  /**
+   * 渲染 Prometheus / OpenMetrics 文本。
+   *
+   * 数据库连接数与 readiness 都是异步采集：前者一次 `pg_stat_activity`
+   * 聚合查询，后者复用健康检查（DB critical + Redis 非关键）。
+   */
+  async openMetrics() {
+    const [db, health] = await Promise.all([
+      this.#dbSnapshot(),
+      this.health.readiness(),
+    ])
+    return renderOpenMetrics({
+      request: this.metrics.snapshot(),
+      runtime: this.runtimeStats.snapshot(),
+      cache: this.cacheMetrics.snapshot(),
+      redis: this.redisMetrics.snapshot(),
+      queue: this.queueMetrics.snapshot(),
+      query: this.queryMetrics.snapshot(),
+      db,
+      health,
+    })
+  }
+
+  async #dbSnapshot() {
+    try {
+      // 注入的 token 类型是 BunSQLDatabase 类；drizzle() 返回值才带 $client。
+      const client = (this.db as unknown as { $client: Bun.SQL }).$client
+      const connections = (await client`
+        select coalesce(state, 'unknown') as state, count(*)::int as count
+        from pg_stat_activity
+        where datname = current_database()
+        group by 1
+      `) as unknown as { state: string; count: number }[]
+      return { up: true, connections }
+    } catch {
+      // 指标端点不因为数据库不可达而失败；`dunx_db_up` 会变成 0。
+      return {
+        up: false,
+        connections: [] as { state: string; count: number }[],
+      }
+    }
+  }
 
   /**
    * 获取请求指标
@@ -40,7 +89,7 @@ export class SysMetricsService {
    * @returns 数据库查询指标
    */
   getQueryMetrics() {
-    return {} as SysQueryMetrics
+    return this.queryMetrics.snapshot() as SysQueryMetrics
   }
 
   /**

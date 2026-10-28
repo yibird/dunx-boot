@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { createSelectSchema } from 'drizzle-orm/zod'
 import { commonColumns, commonColumnsSchema } from '@/schemas/common'
 import { bigintString } from '@/schemas/types'
-import { PM_TASK_ACTIVITY_ACTION } from '@/features/pm/task/constant'
+import { PM_TASK_ACTIVITY_ACTION } from '@/constants'
 
 /**
  * 任务变更动态表：记录谁在什么时候对任务做了什么改动。
@@ -63,18 +63,18 @@ export const pmTaskActivitySchema = createSelectSchema(pmTaskActivity, {
     .meta({ description: '操作人主键', examples: ['1'] }),
   action: z
     .union([
-      z.literal(PM_TASK_ACTIVITY_ACTION.CREATE),
-      z.literal(PM_TASK_ACTIVITY_ACTION.UPDATE),
-      z.literal(PM_TASK_ACTIVITY_ACTION.STATUS),
-      z.literal(PM_TASK_ACTIVITY_ACTION.ASSIGN),
-      z.literal(PM_TASK_ACTIVITY_ACTION.COMMENT),
-      z.literal(PM_TASK_ACTIVITY_ACTION.ATTACHMENT),
-      z.literal(PM_TASK_ACTIVITY_ACTION.DELETE),
+      z.literal(PM_TASK_ACTIVITY_ACTION.Create),
+      z.literal(PM_TASK_ACTIVITY_ACTION.Update),
+      z.literal(PM_TASK_ACTIVITY_ACTION.Status),
+      z.literal(PM_TASK_ACTIVITY_ACTION.Assign),
+      z.literal(PM_TASK_ACTIVITY_ACTION.Comment),
+      z.literal(PM_TASK_ACTIVITY_ACTION.Attachment),
+      z.literal(PM_TASK_ACTIVITY_ACTION.Delete),
     ])
     .meta({
       description:
         '动作：create 创建 update 更新 status 变更状态 assign 变更负责人 comment 新增评论 attachment 新增附件 delete 删除任务',
-      examples: [PM_TASK_ACTIVITY_ACTION.STATUS],
+      examples: [PM_TASK_ACTIVITY_ACTION.Status],
     }),
   field: z
     .string()

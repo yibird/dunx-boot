@@ -1,0 +1,51 @@
+groups:
+  - name: dunx-boot
+    rules:
+      - alert: DunxHigh5xxRate
+        expr: |
+          sum(rate(dunx_http_requests_total{status=~"5.."}[5m]))
+          /
+          clamp_min(sum(rate(dunx_http_requests_total[5m])), 1e-9)
+          > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: 5xx 比例超过 5%
+          description: 最近 5 分钟 5xx 占比 {{ $value | humanizePercentage }}。
+
+      - alert: DunxSlowP95
+        expr: max by (route) (dunx_http_request_duration_seconds{quantile="0.95"}) > 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: 路由 {{ $labels.route }} 的 p95 超过 1s
+          description: 当前 p95 为 {{ $value }}s，持续 10 分钟。
+
+      - alert: DunxNotReady
+        expr: dunx_health_ready == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: 应用 readiness 失败
+          description: 实例已连续 2 分钟未就绪（DB 或 draining）。查看 /api/health/ready。
+
+      - alert: DunxQueueBacklog
+        expr: sum by (queue, name) (dunx_queue_pending) > 100
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: 队列 {{ $labels.queue }}/{{ $labels.name }} 积压
+          description: 待处理任务约 {{ $value }} 个，持续 10 分钟。
+
+      - alert: DunxHighMemory
+        expr: dunx_memory_bytes{kind="rss"} > 1.5e9
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: 进程 RSS 超过 1.5GB
+          description: 当前 RSS {{ $value | humanize1024 }}B，持续 10 分钟。

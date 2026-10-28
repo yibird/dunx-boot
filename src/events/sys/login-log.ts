@@ -1,9 +1,6 @@
 import { AppEvent, Logger, Module, OnEvent, RequestContext } from '@dunx/core'
-import {
-  SysLoginLogRepository,
-  type SysLoginType,
-  type SysLoginPlatform,
-} from '@/features/sys/login-log'
+import { SysLoginLogRepository } from '@/features/sys/login-log'
+import type { SysLoginType, SysLoginPlatform } from '@/constants'
 import { getTenantId } from '@/infra/context'
 import { getErrorMessage } from '@/errors'
 import { AssertUtils, WebUtils } from '@/utils'

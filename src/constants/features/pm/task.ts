@@ -5,19 +5,19 @@ export const PM_TASK_STATUS = {
   /**
    * 待办
    */
-  TODO: 1,
+  Todo: 1,
   /**
    * 进行中
    */
-  IN_PROGRESS: 2,
+  InProgress: 2,
   /**
    * 已完成
    */
-  DONE: 3,
+  Done: 3,
   /**
    * 已取消
    */
-  CANCELED: 4,
+  Canceled: 4,
 } as const
 
 /**
@@ -27,19 +27,19 @@ export const PM_TASK_PRIORITY = {
   /**
    * 低
    */
-  LOW: 1,
+  Low: 1,
   /**
    * 中
    */
-  MEDIUM: 2,
+  Medium: 2,
   /**
    * 高
    */
-  HIGH: 3,
+  High: 3,
   /**
    * 紧急
    */
-  URGENT: 4,
+  Urgent: 4,
 } as const
 
 /**
@@ -49,35 +49,33 @@ export const PM_TASK_ACTIVITY_ACTION = {
   /**
    * 创建任务
    */
-  CREATE: 'create',
+  Create: 'create',
   /**
    * 更新任务
    */
-  UPDATE: 'update',
+  Update: 'update',
   /**
    * 变更状态
    */
-  STATUS: 'status',
+  Status: 'status',
   /**
    * 变更负责人
    */
-  ASSIGN: 'assign',
+  Assign: 'assign',
   /**
    * 新增评论
    */
-  COMMENT: 'comment',
+  Comment: 'comment',
   /**
    * 新增附件
    */
-  ATTACHMENT: 'attachment',
+  Attachment: 'attachment',
   /**
    * 删除任务
    */
-  DELETE: 'delete',
+  Delete: 'delete',
 } as const
 
-export type TaskStatus = (typeof PM_TASK_STATUS)[keyof typeof PM_TASK_STATUS]
-export type TaskPriority =
-  (typeof PM_TASK_PRIORITY)[keyof typeof PM_TASK_PRIORITY]
-export type TaskActivityAction =
-  (typeof PM_TASK_ACTIVITY_ACTION)[keyof typeof PM_TASK_ACTIVITY_ACTION]
+export type PmTaskStatus = ValueOf<typeof PM_TASK_STATUS>
+export type PmTaskPriority = ValueOf<typeof PM_TASK_PRIORITY>
+export type PmTaskActivityAction = ValueOf<typeof PM_TASK_ACTIVITY_ACTION>

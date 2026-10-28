@@ -5,15 +5,15 @@ export const SYS_MESSAGE_TYPE = {
   /**
    * 系统通知
    */
-  SYSTEM_NOTICE: 1,
+  SystemNotice: 1,
   /**
    * 待办事项
    */
-  TODO: 2,
+  Todo: 2,
   /**
    * 告警消息
    */
-  ALERT: 3,
+  Alert: 3,
 } as const
 
 /**
@@ -23,15 +23,15 @@ export const SYS_MESSAGE_LEVEL = {
   /**
    * 普通
    */
-  NORMAL: 1,
+  Normal: 1,
   /**
    * 重要
    */
-  IMPORTANT: 2,
+  Important: 2,
   /**
    * 紧急
    */
-  URGENT: 3,
+  Urgent: 3,
 } as const
 
 export type SysMessageType = ValueOf<typeof SYS_MESSAGE_TYPE>

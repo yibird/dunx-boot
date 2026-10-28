@@ -2,7 +2,8 @@ import { ApiStatus } from '@/constants'
 import { AppError } from '@/errors'
 import { SysRequestLogEvent } from '@/events'
 import { IdUtils, WebUtils } from '@/utils'
-import { EventBus, RequestContext } from '@dunx/core'
+import { AppConfigService } from '@/infra/config'
+import { EventBus, Logger, RequestContext } from '@dunx/core'
 import {
   ClientAddress,
   type Middleware,
@@ -20,6 +21,7 @@ const SKIP_PREFIXES = [
   '/api/health',
   '/api/docs',
   '/api/openapi.json',
+  '/api/metrics/openmetrics',
   '/_dunx',
 ] as const
 
@@ -52,7 +54,9 @@ export class RequestLogMiddleware implements Middleware {
   constructor(
     private readonly bus: EventBus,
     private readonly context: RequestContext,
-    private readonly address: ClientAddress
+    private readonly address: ClientAddress,
+    private readonly config: AppConfigService,
+    private readonly logger: Logger
   ) {}
 
   async handle(
@@ -67,32 +71,62 @@ export class RequestLogMiddleware implements Middleware {
       return next()
     }
 
+    // 采样只影响审计日志，不影响框架的请求指标。
+    const { sampleRate, slowMs } = this.config.values.requestLog
+    const sampled =
+      sampleRate >= 1 || (sampleRate > 0 && Math.random() < sampleRate)
+
     const startedAt = performance.now()
     const request = WebUtils.getRequest(req)
     const ip = WebUtils.getIp(req)
-    const params = {
-      query: request.query,
-      body: ctx.parsesBody ? await WebUtils.getBody(req) : undefined,
-    }
+    const params = sampled
+      ? {
+          query: request.query,
+          body: ctx.parsesBody ? await WebUtils.getBody(req) : undefined,
+        }
+      : {}
 
     try {
       const response = await next()
       const snapshot = await WebUtils.getResponse(response)
-      this.#record(req, request, ip, params, startedAt, {
-        statusCode: snapshot.status,
-        success: snapshot.status < ApiStatus.BAD_REQUEST,
-        response: snapshot.body,
-      })
+      const durationMs = Math.round(performance.now() - startedAt)
+      if (sampled) {
+        this.#record(req, request, ip, params, durationMs, {
+          statusCode: snapshot.status,
+          success: snapshot.status < ApiStatus.BAD_REQUEST,
+          response: snapshot.body,
+        })
+      }
+      if (durationMs >= slowMs) {
+        this.logger.warn('慢请求', {
+          route: ctx.path,
+          method: request.method,
+          status: snapshot.status,
+          durationMs,
+        })
+      }
       return response
     } catch (error) {
-      this.#record(req, request, ip, params, startedAt, {
-        statusCode:
-          error instanceof AppError
-            ? error.status
-            : ApiStatus.INTERNAL_SERVER_ERROR,
-        success: false,
-        errorMessage: error instanceof Error ? error.message : String(error),
-      })
+      const durationMs = Math.round(performance.now() - startedAt)
+      const statusCode =
+        error instanceof AppError
+          ? error.status
+          : ApiStatus.INTERNAL_SERVER_ERROR
+      if (sampled) {
+        this.#record(req, request, ip, params, durationMs, {
+          statusCode,
+          success: false,
+          errorMessage: error instanceof Error ? error.message : String(error),
+        })
+      }
+      if (durationMs >= slowMs) {
+        this.logger.warn('慢请求（失败）', {
+          route: ctx.path,
+          method: request.method,
+          status: statusCode,
+          durationMs,
+        })
+      }
       throw error
     }
   }
@@ -102,7 +136,7 @@ export class RequestLogMiddleware implements Middleware {
     request: WebRequestSnapshot,
     ip: string | undefined | null,
     params: Record<string, unknown>,
-    startedAt: number,
+    durationMs: number,
     outcome: RequestOutcome
   ) {
     this.bus.emit(
@@ -114,7 +148,7 @@ export class RequestLogMiddleware implements Middleware {
           url: request.url,
           success: outcome.success,
           statusCode: outcome.statusCode,
-          duration: Math.round(performance.now() - startedAt),
+          duration: durationMs,
           token: request.token ?? undefined,
           ip,
           userAgent: request.userAgent ?? undefined,

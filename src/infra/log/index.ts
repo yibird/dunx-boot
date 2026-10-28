@@ -12,7 +12,7 @@ export const AppLoggerModule = LoggerModule.forRootAsync({
       level,
       env: getEnv(),
       isDevelopment: isDev(),
-      transports: isDev() ? devTransport() : prodTransport(file),
+      transports: isDev() ? devTransport(file) : prodTransport(file),
     }
   },
   inject: [AppConfigService] as const,

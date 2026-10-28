@@ -19,6 +19,7 @@ import { dashboard } from './dashboard'
 import { seed } from './seed'
 import { tracing } from './tracing'
 import { ai } from './ai'
+import { requestLog } from './request-log'
 
 export const config = z.object({
   application,
@@ -41,6 +42,7 @@ export const config = z.object({
   seed,
   tracing,
   ai,
+  requestLog,
 })
 
 export type AppConfig = DeepReadonly<z.output<typeof config>>
@@ -67,3 +69,4 @@ export type DashboardConfig = AppConfig['dashboard']
 export type SeedConfig = AppConfig['seed']
 export type TracingConfig = AppConfig['tracing']
 export type AiConfig = AppConfig['ai']
+export type RequestLogConfig = AppConfig['requestLog']

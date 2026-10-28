@@ -11,7 +11,7 @@ import { z } from 'zod'
 import { createSelectSchema } from 'drizzle-orm/zod'
 import { commonColumns, commonColumnsSchema } from '@/schemas/common'
 import { datetime } from '@/schemas/types'
-import { SYS_TASK_STATUS } from '@/features/sys/task/constant'
+import { SYS_TASK_STATUS } from '@/constants'
 
 /**
  * 通用任务表
@@ -38,7 +38,7 @@ export const sysTask = pgTable(
      * 任务状态：1 待执行 2 执行中 3 成功 4 失败 5 已取消。
      */
     taskStatus: smallint('task_status')
-      .default(SYS_TASK_STATUS.PENDING)
+      .default(SYS_TASK_STATUS.Pending)
       .notNull(),
     /**
      * 执行进度百分比，0-100。
@@ -92,15 +92,15 @@ export const sysTaskSchema = createSelectSchema(sysTask, {
     .meta({ description: '任务类型', examples: ['export'] }),
   taskStatus: z
     .union([
-      z.literal(SYS_TASK_STATUS.PENDING),
-      z.literal(SYS_TASK_STATUS.RUNNING),
-      z.literal(SYS_TASK_STATUS.SUCCESS),
-      z.literal(SYS_TASK_STATUS.FAILED),
-      z.literal(SYS_TASK_STATUS.CANCELED),
+      z.literal(SYS_TASK_STATUS.Pending),
+      z.literal(SYS_TASK_STATUS.Running),
+      z.literal(SYS_TASK_STATUS.Success),
+      z.literal(SYS_TASK_STATUS.Failed),
+      z.literal(SYS_TASK_STATUS.Canceled),
     ])
     .meta({
       description: '任务状态：1 待执行 2 执行中 3 成功 4 失败 5 已取消',
-      examples: [SYS_TASK_STATUS.PENDING],
+      examples: [SYS_TASK_STATUS.Pending],
     }),
   progress: z
     .number()

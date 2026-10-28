@@ -6,7 +6,7 @@ import {
 } from 'drizzle-orm/zod'
 import { baseQuerySchema, type BaseQuery } from '@/infra/model'
 import { commonColumnsSchema, sysNotice, sysNoticeRead } from '@/schemas'
-import { SYS_NOTICE_SEND_MODE, SYS_NOTICE_TYPE } from './constant'
+import { SYS_NOTICE_SEND_MODE, SYS_NOTICE_TYPE } from '@/constants'
 
 export const sysNoticeSchema = createSelectSchema(sysNotice, {
   title: z
@@ -18,21 +18,21 @@ export const sysNoticeSchema = createSelectSchema(sysNotice, {
     .meta({ description: '通知内容', examples: ['公司于 10 月 1 日放假'] }),
   noticeType: z
     .union([
-      z.literal(SYS_NOTICE_TYPE.NOTICE),
-      z.literal(SYS_NOTICE_TYPE.ANNOUNCEMENT),
+      z.literal(SYS_NOTICE_TYPE.Notice),
+      z.literal(SYS_NOTICE_TYPE.Announcement),
     ])
     .meta({
       description: '通知类型：1 通知 2 公告',
-      examples: [SYS_NOTICE_TYPE.NOTICE],
+      examples: [SYS_NOTICE_TYPE.Notice],
     }),
   sendMode: z
     .union([
-      z.literal(SYS_NOTICE_SEND_MODE.IMMEDIATE),
-      z.literal(SYS_NOTICE_SEND_MODE.SCHEDULED),
+      z.literal(SYS_NOTICE_SEND_MODE.Immediate),
+      z.literal(SYS_NOTICE_SEND_MODE.Scheduled),
     ])
     .meta({
       description: '发送方式：immediate 立即发送 scheduled 定时发送',
-      examples: [SYS_NOTICE_SEND_MODE.IMMEDIATE],
+      examples: [SYS_NOTICE_SEND_MODE.Immediate],
     }),
   scheduledAt: z
     .union([z.string(), z.date()])
@@ -73,12 +73,12 @@ export const sysNoticeReadSchema = createSelectSchema(sysNoticeRead, {
  */
 const noticeTypeSchema = z
   .union([
-    z.literal(SYS_NOTICE_TYPE.NOTICE),
-    z.literal(SYS_NOTICE_TYPE.ANNOUNCEMENT),
+    z.literal(SYS_NOTICE_TYPE.Notice),
+    z.literal(SYS_NOTICE_TYPE.Announcement),
   ])
   .meta({
     description: '通知类型：1 通知 2 公告',
-    examples: [SYS_NOTICE_TYPE.NOTICE],
+    examples: [SYS_NOTICE_TYPE.Notice],
   })
 
 /**
@@ -86,12 +86,12 @@ const noticeTypeSchema = z
  */
 const sendModeSchema = z
   .union([
-    z.literal(SYS_NOTICE_SEND_MODE.IMMEDIATE),
-    z.literal(SYS_NOTICE_SEND_MODE.SCHEDULED),
+    z.literal(SYS_NOTICE_SEND_MODE.Immediate),
+    z.literal(SYS_NOTICE_SEND_MODE.Scheduled),
   ])
   .meta({
     description: '发送方式：immediate 立即发送 scheduled 定时发送',
-    examples: [SYS_NOTICE_SEND_MODE.IMMEDIATE],
+    examples: [SYS_NOTICE_SEND_MODE.Immediate],
   })
 
 /**

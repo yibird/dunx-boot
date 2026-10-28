@@ -1,9 +1,9 @@
 {
   "editor.defaultFormatter": "oxc.oxc-vscode",
   "editor.formatOnSave": true,
-  "json.format.enable": false,
-  "typescript.format.enable": false,
-  "javascript.format.enable": false,
+  "json.format.enable": true,
+  "typescript.format.enable": true,
+  "javascript.format.enable": true,
   "[javascript]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },

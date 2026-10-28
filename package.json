@@ -10,8 +10,7 @@
     "test": "bun test",
     "typecheck": "bun --check",
     "lint": "oxlint",
-    "fmt": "oxfmt",
-    "check": "bun --check && oxlint && oxfmt --check",
+    "check": "bun --check && oxlint && bun fmt",
     "prepare": "simple-git-hooks",
     "commit": "cz",
     "db:generate": "bunx drizzle-kit generate",
@@ -26,13 +25,13 @@
     "@ai-sdk/openai": "4.0.99",
     "@dicebear/collection": "9.4.3",
     "@dicebear/core": "9.4.3",
-    "@dunx/auth": "^3.10.4",
-    "@dunx/core": "^3.10.4",
-    "@dunx/dashboard": "^3.10.4",
-    "@dunx/http": "^3.10.4",
-    "@dunx/infra": "^3.10.4",
-    "@dunx/openapi": "^3.10.4",
-    "@dunx/transform": "^3.10.4",
+    "@dunx/auth": "^3.10.5",
+    "@dunx/core": "^3.10.5",
+    "@dunx/dashboard": "^3.10.5",
+    "@dunx/http": "^3.10.5",
+    "@dunx/infra": "^3.10.5",
+    "@dunx/openapi": "^3.10.5",
+    "@dunx/transform": "^3.10.5",
     "@mastra/core": "1.77.0",
     "@opentelemetry/api": "^1.10.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.300.0",
@@ -58,7 +57,7 @@
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "@commitlint/format": "^21.2.3",
-    "@dunx/testing": "^3.10.4",
+    "@dunx/testing": "^3.10.5",
     "@scalar/api-reference": "^1.75.1",
     "@types/bun": ">=1.4.2",
     "@types/qrcode": "^1.5.6",
@@ -68,7 +67,6 @@
     "cz-git": "^1.14.0",
     "drizzle-kit": "1.0.0-rc.5-ab785fc",
     "lint-staged": "^17.6.0",
-    "oxfmt": "^0.64.0",
     "oxlint": "^1.89.0",
     "pg": "^8.23.1",
     "simple-git-hooks": "^2.14.0",
@@ -86,7 +84,7 @@
       "oxlint --fix"
     ],
     "*.{js,ts,cjs,json,jsonc}": [
-      "oxfmt --no-error-on-unmatched-pattern"
+      "bun fmt --no-error-on-unmatched-pattern"
     ]
   },
   "config": {

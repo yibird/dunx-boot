@@ -5,23 +5,23 @@ export const PM_PROJECT_STATUS = {
   /**
    * 未开始
    */
-  NOT_STARTED: 1,
+  NotStarted: 1,
   /**
    * 进行中
    */
-  IN_PROGRESS: 2,
+  InProgress: 2,
   /**
    * 已完成
    */
-  COMPLETED: 3,
+  Completed: 3,
   /**
    * 已归档
    */
-  ARCHIVED: 4,
+  Archived: 4,
   /**
    * 已取消
    */
-  CANCELED: 5,
+  Canceled: 5,
 } as const
 
 /**
@@ -31,15 +31,15 @@ export const PM_PROJECT_PRIORITY = {
   /**
    * 低
    */
-  LOW: 1,
+  Low: 1,
   /**
    * 中
    */
-  MEDIUM: 2,
+  Medium: 2,
   /**
    * 高
    */
-  HIGH: 3,
+  High: 3,
 } as const
 
 /**
@@ -49,24 +49,21 @@ export const PM_PROJECT_MEMBER_ROLE = {
   /**
    * 负责人
    */
-  OWNER: 1,
+  Owner: 1,
   /**
    * 管理员
    */
-  ADMIN: 2,
+  Admin: 2,
   /**
    * 普通成员
    */
-  MEMBER: 3,
+  Member: 3,
   /**
    * 观察者（只读）
    */
-  VIEWER: 4,
+  Viewer: 4,
 } as const
 
-export type ProjectStatus =
-  (typeof PM_PROJECT_STATUS)[keyof typeof PM_PROJECT_STATUS]
-export type ProjectPriority =
-  (typeof PM_PROJECT_PRIORITY)[keyof typeof PM_PROJECT_PRIORITY]
-export type ProjectMemberRole =
-  (typeof PM_PROJECT_MEMBER_ROLE)[keyof typeof PM_PROJECT_MEMBER_ROLE]
+export type PmProjectStatus = ValueOf<typeof PM_PROJECT_STATUS>
+export type PmProjectPriority = ValueOf<typeof PM_PROJECT_PRIORITY>
+export type PmProjectMemberRole = ValueOf<typeof PM_PROJECT_MEMBER_ROLE>

@@ -1,6 +1,65 @@
 import type { AnyRelations } from 'drizzle-orm'
 import { drizzle, type BunSQLDatabase } from 'drizzle-orm/bun-sql/postgres'
 import type { Cache } from 'drizzle-orm/cache/core'
+import { QueryMetrics } from './query-metrics'
+
+/**
+ * 全局查询指标。本应用只有一个连接池，所以用模块级实例；
+ * `SysMetricsModule` 把它绑成 `QueryMetrics` token。
+ */
+export const dbQueryMetrics = new QueryMetrics()
+
+interface InstrumentableClient {
+  unsafe: (
+    query: string,
+    ...params: unknown[]
+  ) => {
+    then: (
+      onOk?: (value: unknown) => unknown,
+      onErr?: (error: unknown) => unknown
+    ) => unknown
+  }
+}
+
+/**
+ * 给 Bun.SQL 的 `unsafe()` 计时。
+ *
+ * drizzle 的 bun-sql 驱动把普通查询交给 `client.unsafe(query, params)`，
+ * 返回一个惰性 Query；这里包住它的 `then`，按语句形状和耗时写入
+ * {@link QueryMetrics}（与框架的 `instrument` 同一套路，但不引入它的 DbModule）。
+ */
+function instrumentSql(client: Bun.SQL, metrics: QueryMetrics) {
+  const target = client as unknown as InstrumentableClient
+  const original = target.unsafe.bind(target)
+  target.unsafe = (query, ...params) => {
+    const result = original(query, ...params)
+    const originalThen = result.then.bind(result)
+    let observed = false
+    // Bun.SQL 的 Query 是惰性 thenable；这里包住 then 只为计时，不改变结果。
+    // oxlint-disable-next-line unicorn/no-thenable
+    result.then = (onOk, onErr) => {
+      if (!observed) {
+        observed = true
+        const started = Bun.nanoseconds()
+        new Promise<void>((resolve, reject) => {
+          originalThen(
+            () => resolve(),
+            (error) => reject(error)
+          )
+        })
+          .then(
+            () => metrics.observe(query, Bun.nanoseconds() - started),
+            () => metrics.observe(query, Bun.nanoseconds() - started, true)
+          )
+          .catch(() => {
+            // observe 本身不应影响查询
+          })
+      }
+      return originalThen(onOk, onErr)
+    }
+    return result
+  }
+}
 
 /**
  * Drizzle 1.0 的关系定义，同时决定 db.query 的表与关联类型。
@@ -56,6 +115,7 @@ export async function createDb<R extends DbSchema = DbSchema>(
   assertPostgresUrl(url)
 
   const client = new Bun.SQL(url, sqlOptions)
+  instrumentSql(client, dbQueryMetrics)
   const { cache: enabled, ...rest } = drizzleOptions
   try {
     return drizzle({

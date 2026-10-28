@@ -2,9 +2,11 @@ import type { Ctor } from '@dunx/core'
 import { DashboardMiddleware } from '@dunx/dashboard'
 import { Compression, ThrottleGuard, type Middleware } from '@dunx/http'
 import { AuthMiddleware } from './auth'
+import { BodyLimitMiddleware } from './body-limit'
 import { RequestLogMiddleware } from './request-log'
 
 export { AuthMiddleware, createWhiteList } from './auth'
+export { BodyLimitMiddleware } from './body-limit'
 export { RequestLogMiddleware } from './request-log'
 
 /**
@@ -23,6 +25,7 @@ export { RequestLogMiddleware } from './request-log'
  * - `ThrottleGuard` 排在认证之后：限流主体要读得到当前登录用户。
  */
 export const globalMiddleware: readonly Ctor<Middleware>[] = [
+  BodyLimitMiddleware,
   Compression,
   DashboardMiddleware,
   AuthMiddleware,

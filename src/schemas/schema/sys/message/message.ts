@@ -1,11 +1,7 @@
 import { index, pgTable, smallint, text, varchar } from 'drizzle-orm/pg-core'
+import { SYS_MESSAGE_LEVEL, SYS_MESSAGE_TYPE } from '@/constants'
 import { commonColumns } from '@/schemas/common'
 import { bigintString, datetime } from '@/schemas/types'
-
-import {
-  SYS_MESSAGE_LEVEL,
-  SYS_MESSAGE_TYPE,
-} from '@/features/sys/message/constant'
 
 /**
  * 系统消息表
@@ -27,12 +23,12 @@ export const sysMessage = pgTable(
      * 消息类型：1 系统通知 2 待办事项 3 告警消息
      */
     messageType: smallint('message_type')
-      .default(SYS_MESSAGE_TYPE.SYSTEM_NOTICE)
+      .default(SYS_MESSAGE_TYPE.SystemNotice)
       .notNull(),
     /**
      * 消息级别：1 普通 2 重要 3 紧急
      */
-    level: smallint('level').default(SYS_MESSAGE_LEVEL.NORMAL).notNull(),
+    level: smallint('level').default(SYS_MESSAGE_LEVEL.Normal).notNull(),
     /**
      * 发送人ID；系统发送时为空
      */

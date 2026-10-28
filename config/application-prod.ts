@@ -34,6 +34,7 @@ const security: DeepPartial<SecurityConfig> = {
       .map((origin) => origin.trim())
       .filter(Boolean),
   },
+  csrf: true,
 }
 
 export default {

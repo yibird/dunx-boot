@@ -11,10 +11,7 @@ import { z } from 'zod'
 import { createSelectSchema } from 'drizzle-orm/zod'
 import { commonColumns, commonColumnsSchema } from '@/schemas/common'
 import { bigintString, datetime } from '@/schemas/types'
-import {
-  PM_PROJECT_PRIORITY,
-  PM_PROJECT_STATUS,
-} from '@/features/pm/project/constant'
+import { PM_PROJECT_PRIORITY, PM_PROJECT_STATUS } from '@/constants'
 
 /**
  * 项目基本信息表
@@ -37,12 +34,12 @@ export const pmProject = pgTable(
     /**
      * 项目状态：1 未开始 2 进行中 3 已完成 4 已归档 5 已取消。
      */
-    status: smallint('status').default(PM_PROJECT_STATUS.NOT_STARTED).notNull(),
+    status: smallint('status').default(PM_PROJECT_STATUS.NotStarted).notNull(),
     /**
      * 项目优先级：1 低 2 中 3 高。
      */
     priority: smallint('priority')
-      .default(PM_PROJECT_PRIORITY.MEDIUM)
+      .default(PM_PROJECT_PRIORITY.Medium)
       .notNull(),
     /**
      * 项目负责人。
@@ -82,25 +79,25 @@ export const pmProjectSchema = createSelectSchema(pmProject, {
     .meta({ description: '项目描述', examples: ['门户前台改版'] }),
   status: z
     .union([
-      z.literal(PM_PROJECT_STATUS.NOT_STARTED),
-      z.literal(PM_PROJECT_STATUS.IN_PROGRESS),
-      z.literal(PM_PROJECT_STATUS.COMPLETED),
-      z.literal(PM_PROJECT_STATUS.ARCHIVED),
-      z.literal(PM_PROJECT_STATUS.CANCELED),
+      z.literal(PM_PROJECT_STATUS.NotStarted),
+      z.literal(PM_PROJECT_STATUS.InProgress),
+      z.literal(PM_PROJECT_STATUS.Completed),
+      z.literal(PM_PROJECT_STATUS.Archived),
+      z.literal(PM_PROJECT_STATUS.Canceled),
     ])
     .meta({
       description: '项目状态：1 未开始 2 进行中 3 已完成 4 已归档 5 已取消',
-      examples: [PM_PROJECT_STATUS.NOT_STARTED],
+      examples: [PM_PROJECT_STATUS.NotStarted],
     }),
   priority: z
     .union([
-      z.literal(PM_PROJECT_PRIORITY.LOW),
-      z.literal(PM_PROJECT_PRIORITY.MEDIUM),
-      z.literal(PM_PROJECT_PRIORITY.HIGH),
+      z.literal(PM_PROJECT_PRIORITY.Low),
+      z.literal(PM_PROJECT_PRIORITY.Medium),
+      z.literal(PM_PROJECT_PRIORITY.High),
     ])
     .meta({
       description: '项目优先级：1 低 2 中 3 高',
-      examples: [PM_PROJECT_PRIORITY.MEDIUM],
+      examples: [PM_PROJECT_PRIORITY.Medium],
     }),
   ownerId: z
     .string()

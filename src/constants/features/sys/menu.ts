@@ -5,19 +5,19 @@ export const SYS_MENU_TYPE = {
   /**
    * 目录
    */
-  DIR: 1,
+  Dir: 1,
   /**
    * 菜单
    */
-  MENU: 2,
+  Menu: 2,
   /**
-   * 子菜单
+   * 子菜单 (按钮/隐藏路由)
    */
-  CHILD_MENU: 3,
+  ChildMenu: 3,
   /**
-   * 权限
+   * 权限 (按钮级权限)
    */
-  PERMISSION: 4,
+  Permission: 4,
 } as const
 
 export type SysMenuType = ValueOf<typeof SYS_MENU_TYPE>

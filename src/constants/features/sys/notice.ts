@@ -5,11 +5,11 @@ export const SYS_NOTICE_TYPE = {
   /**
    * 通知
    */
-  NOTICE: 1,
+  Notice: 1,
   /**
    * 公告
    */
-  ANNOUNCEMENT: 2,
+  Announcement: 2,
 } as const
 
 /**
@@ -19,11 +19,11 @@ export const SYS_NOTICE_SEND_MODE = {
   /**
    * 立即发送
    */
-  IMMEDIATE: 'immediate',
+  Immediate: 'immediate',
   /**
    * 定时发送
    */
-  SCHEDULED: 'scheduled',
+  Scheduled: 'scheduled',
 } as const
 
 export type NoticeType = ValueOf<typeof SYS_NOTICE_TYPE>

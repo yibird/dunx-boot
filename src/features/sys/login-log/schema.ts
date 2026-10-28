@@ -1,35 +1,35 @@
 import { z } from 'zod'
 import { baseQuerySchema } from '@/infra/model'
 import { commonColumnsSchema, sysLoginLog } from '@/schemas'
-import { SYS_LOGIN_PLATFORM, SYS_LOGIN_TYPE } from './constant'
+import { SYS_LOGIN_PLATFORM, SYS_LOGIN_TYPE } from '@/constants'
 import { createSelectSchema } from 'drizzle-orm/zod'
 
 export const sysLoginLogSchema = createSelectSchema(sysLoginLog, {
   loginType: z
     .union([
-      z.literal(SYS_LOGIN_TYPE.PASSWORD_LOGIN),
-      z.literal(SYS_LOGIN_TYPE.SMS_LOGIN),
-      z.literal(SYS_LOGIN_TYPE.EMAIL_LOGIN),
-      z.literal(SYS_LOGIN_TYPE.OAUTH_LOGIN),
+      z.literal(SYS_LOGIN_TYPE.Password),
+      z.literal(SYS_LOGIN_TYPE.Sms),
+      z.literal(SYS_LOGIN_TYPE.Email),
+      z.literal(SYS_LOGIN_TYPE.OAuth),
     ])
     .optional()
     .nullable()
     .meta({
       description: '登录类型',
-      examples: [SYS_LOGIN_TYPE.PASSWORD_LOGIN],
+      examples: [SYS_LOGIN_TYPE.Password],
     }),
   platform: z
     .union([
-      z.literal(SYS_LOGIN_PLATFORM.WEB),
+      z.literal(SYS_LOGIN_PLATFORM.Web),
       z.literal(SYS_LOGIN_PLATFORM.H5),
-      z.literal(SYS_LOGIN_PLATFORM.APP),
-      z.literal(SYS_LOGIN_PLATFORM.WECHAT_MINI_PROGRAM),
+      z.literal(SYS_LOGIN_PLATFORM.App),
+      z.literal(SYS_LOGIN_PLATFORM.WechatMiniProgram),
     ])
     .optional()
     .nullable()
     .meta({
       description: '登录平台',
-      examples: [SYS_LOGIN_PLATFORM.WEB],
+      examples: [SYS_LOGIN_PLATFORM.Web],
     }),
   userId: z
     .string()

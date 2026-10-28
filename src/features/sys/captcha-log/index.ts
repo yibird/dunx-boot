@@ -9,3 +9,5 @@ import { SysCaptchaLogController } from './controller'
   providers: [SysCaptchaLogRepository, SysCaptchaLogService],
 })
 export class SysCaptchaLogModule {}
+
+export { SysCaptchaLogRepository }

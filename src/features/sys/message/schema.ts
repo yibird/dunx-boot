@@ -6,7 +6,7 @@ import {
 } from 'drizzle-orm/zod'
 import { baseQuerySchema, type BaseQuery } from '@/infra/model'
 import { commonColumnsSchema, sysMessage, sysMessageRead } from '@/schemas'
-import { SYS_MESSAGE_LEVEL, SYS_MESSAGE_TYPE } from './constant'
+import { SYS_MESSAGE_LEVEL, SYS_MESSAGE_TYPE } from '@/constants'
 
 export const sysMessageSchema = createSelectSchema(sysMessage, {
   title: z
@@ -18,23 +18,23 @@ export const sysMessageSchema = createSelectSchema(sysMessage, {
     .meta({ description: '消息内容', examples: ['系统将于今晚 22:00 维护'] }),
   messageType: z
     .union([
-      z.literal(SYS_MESSAGE_TYPE.SYSTEM_NOTICE),
-      z.literal(SYS_MESSAGE_TYPE.TODO),
-      z.literal(SYS_MESSAGE_TYPE.ALERT),
+      z.literal(SYS_MESSAGE_TYPE.SystemNotice),
+      z.literal(SYS_MESSAGE_TYPE.Todo),
+      z.literal(SYS_MESSAGE_TYPE.Alert),
     ])
     .meta({
       description: '消息类型：1 系统通知 2 待办事项 3 告警消息',
-      examples: [SYS_MESSAGE_TYPE.SYSTEM_NOTICE],
+      examples: [SYS_MESSAGE_TYPE.SystemNotice],
     }),
   level: z
     .union([
-      z.literal(SYS_MESSAGE_LEVEL.NORMAL),
-      z.literal(SYS_MESSAGE_LEVEL.IMPORTANT),
-      z.literal(SYS_MESSAGE_LEVEL.URGENT),
+      z.literal(SYS_MESSAGE_LEVEL.Normal),
+      z.literal(SYS_MESSAGE_LEVEL.Important),
+      z.literal(SYS_MESSAGE_LEVEL.Urgent),
     ])
     .meta({
       description: '消息级别：1 普通 2 重要 3 紧急',
-      examples: [SYS_MESSAGE_LEVEL.NORMAL],
+      examples: [SYS_MESSAGE_LEVEL.Normal],
     }),
   senderId: z
     .string()
@@ -79,34 +79,6 @@ export const sysMessageReadSchema = createSelectSchema(sysMessageRead, {
 }).meta({ id: 'SysMessageRead' })
 
 /**
- * 消息类型：1 系统通知 2 待办事项 3 告警消息
- */
-const messageTypeSchema = z
-  .union([
-    z.literal(SYS_MESSAGE_TYPE.SYSTEM_NOTICE),
-    z.literal(SYS_MESSAGE_TYPE.TODO),
-    z.literal(SYS_MESSAGE_TYPE.ALERT),
-  ])
-  .meta({
-    description: '消息类型：1 系统通知 2 待办事项 3 告警消息',
-    examples: [SYS_MESSAGE_TYPE.SYSTEM_NOTICE],
-  })
-
-/**
- * 消息级别：1 普通 2 重要 3 紧急
- */
-const levelSchema = z
-  .union([
-    z.literal(SYS_MESSAGE_LEVEL.NORMAL),
-    z.literal(SYS_MESSAGE_LEVEL.IMPORTANT),
-    z.literal(SYS_MESSAGE_LEVEL.URGENT),
-  ])
-  .meta({
-    description: '消息级别：1 普通 2 重要 3 紧急',
-    examples: [SYS_MESSAGE_LEVEL.NORMAL],
-  })
-
-/**
  * 时间字段的可空时间戳
  */
 const timestampSchema = z.union([z.string(), z.date()]).nullable().optional()
@@ -131,10 +103,6 @@ export const SysMessageCreateReq = createInsertSchema(sysMessage, {
     sort: true,
     dataStatus: true,
   })
-  .extend({
-    messageType: messageTypeSchema.optional(),
-    level: levelSchema.optional(),
-  })
   .meta({ id: 'SysMessageCreateReq' })
 export type SysMessageCreateReq = z.infer<typeof SysMessageCreateReq>
 
@@ -158,11 +126,6 @@ export const SysMessageUpdateReq = createUpdateSchema(sysMessage, {
     sort: true,
     dataStatus: true,
   })
-  .extend({
-    messageType: messageTypeSchema.optional(),
-    level: levelSchema.optional(),
-    version: z.number().int().positive(),
-  })
   .meta({ id: 'SysMessageUpdateReq' })
 export type SysMessageUpdateReq = z.infer<typeof SysMessageUpdateReq>
 
@@ -172,8 +135,8 @@ export type SysMessageUpdateReq = z.infer<typeof SysMessageUpdateReq>
 export const SysMessageQuery = baseQuerySchema
   .extend({
     title: z.string().optional().meta({ description: '消息标题（模糊查询）' }),
-    messageType: messageTypeSchema.optional(),
-    level: levelSchema.optional(),
+    messageType: z.number().optional(),
+    level: z.number().optional(),
     bizType: z.string().optional().meta({ description: '关联业务类型' }),
     dataStatus: z.boolean().optional().meta({ description: '数据状态' }),
   })

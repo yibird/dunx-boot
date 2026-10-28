@@ -1,6 +1,8 @@
 services:
   postgres:
     image: postgres:17-alpine
+    # 慢 SQL（>=500ms）写进容器日志：docker compose logs postgres
+    command: ['postgres', '-c', 'log_min_duration_statement=500']
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: '123456'
@@ -86,8 +88,72 @@ services:
       start_period: 20s
     restart: unless-stopped
 
+  # ---------------------------------------------------------------- 可观测性
+  # 应用跑在宿主机：Prometheus 通过 host.docker.internal 抓 /api/metrics/openmetrics。
+  # Promtail 读取仓库下的 ./logs（应用在 dev / prod 都会写 JSON 文件）。
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=15d'
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./observability/prometheus:/etc/prometheus:ro
+      - prometheus-data:/prometheus
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:v0.28.1
+    ports:
+      - '9093:9093'
+    volumes:
+      - ./observability/alertmanager:/etc/alertmanager:ro
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:3.5.1
+    command: ['-config.file=/etc/loki/loki-config.yaml']
+    ports:
+      - '3100:3100'
+    volumes:
+      - ./observability/loki:/etc/loki:ro
+      - loki-data:/loki
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:3.5.1
+    command: ['-config.file=/etc/promtail/promtail-config.yml']
+    volumes:
+      - ./observability/promtail:/etc/promtail:ro
+      - ./logs:/var/log/dunx:ro
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:12.2.0
+    ports:
+      - '3001:3000'
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - loki
+    restart: unless-stopped
+
 volumes:
   postgres-data:
   rabbitmq-data:
   rustfs-data:
   rustfs-logs:
+  prometheus-data:
+  loki-data:
+  grafana-data:

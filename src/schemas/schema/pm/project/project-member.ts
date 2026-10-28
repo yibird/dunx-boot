@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { createSelectSchema } from 'drizzle-orm/zod'
 import { commonColumns, commonColumnsSchema } from '@/schemas/common'
 import { bigintString } from '@/schemas/types'
-import { PM_PROJECT_MEMBER_ROLE } from '@/features/pm/project/constant'
+import { PM_PROJECT_MEMBER_ROLE } from '@/constants'
 
 /**
  * 项目成员表：一个用户在同一个项目里只有一条有效记录。
@@ -23,7 +23,7 @@ export const pmProjectMember = pgTable(
     /**
      * 成员角色：1 负责人 2 管理员 3 成员 4 观察者。
      */
-    role: smallint('role').default(PM_PROJECT_MEMBER_ROLE.MEMBER).notNull(),
+    role: smallint('role').default(PM_PROJECT_MEMBER_ROLE.Member).notNull(),
     ...commonColumns,
   },
   (table) => [
@@ -39,14 +39,14 @@ export const pmProjectMemberSchema = createSelectSchema(pmProjectMember, {
   userId: z.string().meta({ description: '成员用户主键', examples: ['1'] }),
   role: z
     .union([
-      z.literal(PM_PROJECT_MEMBER_ROLE.OWNER),
-      z.literal(PM_PROJECT_MEMBER_ROLE.ADMIN),
-      z.literal(PM_PROJECT_MEMBER_ROLE.MEMBER),
-      z.literal(PM_PROJECT_MEMBER_ROLE.VIEWER),
+      z.literal(PM_PROJECT_MEMBER_ROLE.Owner),
+      z.literal(PM_PROJECT_MEMBER_ROLE.Admin),
+      z.literal(PM_PROJECT_MEMBER_ROLE.Member),
+      z.literal(PM_PROJECT_MEMBER_ROLE.Viewer),
     ])
     .meta({
       description: '成员角色：1 负责人 2 管理员 3 成员 4 观察者',
-      examples: [PM_PROJECT_MEMBER_ROLE.MEMBER],
+      examples: [PM_PROJECT_MEMBER_ROLE.Member],
     }),
   ...commonColumnsSchema,
 }).meta({ id: 'PmProjectMember' })

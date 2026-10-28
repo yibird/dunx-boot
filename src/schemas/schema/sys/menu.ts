@@ -7,7 +7,7 @@ import { bigintString } from '@/schemas/types'
  */
 export const sysMenu = pgTable('sys_menu', {
   menuName: varchar('menu_name', { length: 100 }).notNull(),
-  menuType: smallint('SYS_MENU_TYPE').notNull(),
+  menuType: smallint('menu_type').notNull(),
   rootId: bigintString('root_id').default('0').notNull(),
   parentId: bigintString('parent_id').default('0').notNull(),
   routePath: varchar('route_path', { length: 255 }),

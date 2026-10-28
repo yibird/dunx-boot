@@ -17,6 +17,15 @@ export const server = z.object({
    */
   basePath: z.string().default('api'),
   /**
+   * 单个请求体的上限（字节），按 `Content-Length` 在进入认证前拒绝。
+   * `0` 表示不限制。文件上传（`/api/files`）走流式分片，不受此限制。
+   */
+  maxRequestBodyBytes: z.coerce
+    .number()
+    .int()
+    .nonnegative()
+    .default(10 * 1024 * 1024),
+  /**
    * 是否信任反向代理写入的客户端 IP 请求头。
    */
   trustProxy: z.coerce.boolean().default(false),

@@ -5,11 +5,11 @@ export const SYS_CAPTCHA_TYPE = {
   /**
    * 图片验证码
    */
-  IMAGE: 1,
+  Image: 1,
   /**
    * 短信验证码
    */
-  SMS: 2,
+  Sms: 2,
 } as const
 
 /**
@@ -19,19 +19,19 @@ export const SYS_CAPTCHA_STATUS = {
   /**
    * 待处理
    */
-  PENDING: 1,
+  Pending: 1,
   /**
    * 成功
    */
-  SUCCESS: 2,
+  Success: 2,
   /**
    * 失败
    */
-  FAILED: 3,
+  Failed: 3,
   /**
    * 过期
    */
-  EXPIRED: 4,
+  Expired: 4,
 } as const
 
 export type SysCaptchaType = ValueOf<typeof SYS_CAPTCHA_TYPE>

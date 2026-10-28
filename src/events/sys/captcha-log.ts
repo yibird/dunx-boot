@@ -1,12 +1,15 @@
-import { SYS_CAPTCHA_STATUS } from '@/features/sys/auth/constant'
-import { SysCaptchaLogRepository } from '@/features/sys/captcha-log/repository'
+import { AppEvent, Logger, Module, OnEvent } from '@dunx/core'
+import {
+  REDIS_KEY_TTL,
+  HTTP_MASKED_VALUE,
+  SYS_CAPTCHA_STATUS,
+} from '@/constants'
 import { getTenantId } from '@/infra/context'
 import { AppConfigService } from '@/infra/config'
-import { REDIS_KEY_TTL, HTTP_MASKED_VALUE } from '@/constants'
-import type { SysCaptchaLogInsert } from '@/schemas'
 import { AssertUtils, DateUtils, StringUtils, WebUtils } from '@/utils'
-import { AppEvent, Logger, Module, OnEvent } from '@dunx/core'
 import { getErrorMessage } from '@/errors'
+import { SysCaptchaLogRepository } from '@/features/sys/captcha-log'
+import type { SysCaptchaLogInsert } from '@/schemas'
 
 /**
  * 验证码日志事件载荷
@@ -59,7 +62,7 @@ export class SysCaptchaLogListener {
   async writeLog(e: SysCaptchaLogEvent) {
     const { payload, req } = e
     const expireAt = DateUtils.format(
-      Date.now() + (payload.ttl ?? REDIS_KEY_TTL.IMAGE_CAPTCHA)
+      Date.now() + (payload.ttl ?? REDIS_KEY_TTL.ImageCaptcha)
     )
     const row: SysCaptchaLogInsert = {
       captchaId: StringUtils.truncate(payload.captchaId, 64) ?? '',
@@ -67,7 +70,7 @@ export class SysCaptchaLogListener {
       captchaType: payload.captchaType,
       target: StringUtils.truncate(payload.target, 128) ?? null,
       ip: WebUtils.getIp(req) ?? null,
-      status: SYS_CAPTCHA_STATUS.PENDING,
+      status: SYS_CAPTCHA_STATUS.Pending,
       used: false,
       attempts: 0,
       expireAt,

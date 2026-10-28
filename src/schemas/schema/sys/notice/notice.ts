@@ -1,10 +1,7 @@
 import { index, pgTable, smallint, text, varchar } from 'drizzle-orm/pg-core'
-import { commonColumns } from '../../../common'
-import { bigintString, datetime } from '../../../types'
-import {
-  SYS_NOTICE_SEND_MODE,
-  SYS_NOTICE_TYPE,
-} from '@/features/sys/notice/constant'
+import { SYS_NOTICE_SEND_MODE, SYS_NOTICE_TYPE } from '@/constants'
+import { commonColumns } from '@/schemas/common'
+import { bigintString, datetime } from '@/schemas/types'
 
 /**
  * 通知公告表
@@ -24,13 +21,13 @@ export const sysNotice = pgTable(
      * 通知类型：1 通知 2 公告
      */
     noticeType: smallint('notice_type')
-      .default(SYS_NOTICE_TYPE.NOTICE)
+      .default(SYS_NOTICE_TYPE.Notice)
       .notNull(),
     /**
      * 发送方式：immediate 立即发送 scheduled 定时发送
      */
     sendMode: varchar('send_mode', { length: 20 })
-      .default(SYS_NOTICE_SEND_MODE.IMMEDIATE)
+      .default(SYS_NOTICE_SEND_MODE.Immediate)
       .notNull(),
     /**
      * 定时发送时间；立即发送时为空

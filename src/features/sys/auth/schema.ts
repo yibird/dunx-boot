@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { SYS_LOGIN_PLATFORM } from '../login-log'
+import { SYS_LOGIN_PLATFORM } from '@/constants'
 import { createSelectSchema } from 'drizzle-orm/zod'
 import { sysAuthToken } from '@/schemas'
 
@@ -16,10 +16,10 @@ const captchaSchema = z.string().min(1).max(16).meta({ description: '验证码' 
 const platformSchema = z
   .number()
   .optional()
-  .default(SYS_LOGIN_PLATFORM.WEB)
+  .default(SYS_LOGIN_PLATFORM.Web)
   .meta({
     description: '登录平台',
-    examples: [SYS_LOGIN_PLATFORM.WEB, SYS_LOGIN_PLATFORM.H5],
+    examples: [SYS_LOGIN_PLATFORM.Web, SYS_LOGIN_PLATFORM.H5],
   })
 
 /**
@@ -45,6 +45,13 @@ export const sysAuthImageCaptchaReqSchema = z
 export const sysAuthSmsCaptchaRespSchema = z
   .object({
     captchaId: z.string().meta({ description: '验证码标识' }),
+    expiresIn: z
+      .number()
+      .int()
+      .meta({
+        description: '验证码有效期（秒）',
+        examples: [300],
+      }),
   })
   .meta({ id: 'SysAuthSmsCaptcha', description: '短信验证码' })
 
