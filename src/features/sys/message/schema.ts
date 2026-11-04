@@ -9,60 +9,41 @@ import { commonColumnsSchema, sysMessage, sysMessageRead } from '@/schemas'
 import { SYS_MESSAGE_LEVEL, SYS_MESSAGE_TYPE } from '@/constants'
 
 export const sysMessageSchema = createSelectSchema(sysMessage, {
-  title: z
-    .string()
-    .meta({ description: '消息标题', examples: ['系统维护通知'] }),
-  content: z
-    .string()
-    .nullable()
-    .meta({ description: '消息内容', examples: ['系统将于今晚 22:00 维护'] }),
-  messageType: z
-    .union([
-      z.literal(SYS_MESSAGE_TYPE.SystemNotice),
-      z.literal(SYS_MESSAGE_TYPE.Todo),
-      z.literal(SYS_MESSAGE_TYPE.Alert),
-    ])
-    .meta({
+  title: (schema) =>
+    schema.meta({ description: '消息标题', examples: ['系统维护通知'] }),
+  content: (schema) =>
+    schema
+      .optional()
+      .meta({ description: '消息内容', examples: ['系统将于今晚 22:00 维护'] }),
+  messageType: (schema) =>
+    schema.meta({
       description: '消息类型：1 系统通知 2 待办事项 3 告警消息',
       examples: [SYS_MESSAGE_TYPE.SystemNotice],
     }),
-  level: z
-    .union([
-      z.literal(SYS_MESSAGE_LEVEL.Normal),
-      z.literal(SYS_MESSAGE_LEVEL.Important),
-      z.literal(SYS_MESSAGE_LEVEL.Urgent),
-    ])
-    .meta({
+  level: (schema) =>
+    schema.meta({
       description: '消息级别：1 普通 2 重要 3 紧急',
       examples: [SYS_MESSAGE_LEVEL.Normal],
     }),
-  senderId: z
-    .string()
-    .nullable()
-    .meta({ description: '发送人ID；系统发送时为空', examples: ['1'] }),
-  senderName: z
-    .string()
-    .nullable()
-    .meta({ description: '发送人名称', examples: ['admin'] }),
-  bizType: z
-    .string()
-    .nullable()
-    .meta({ description: '关联业务类型', examples: ['sys:user'] }),
-  bizId: z
-    .string()
-    .nullable()
-    .meta({ description: '关联业务ID', examples: ['1'] }),
-  publishTime: z
-    .union([z.string(), z.date()])
-    .nullable()
-    .meta({
+  senderId: (schema) =>
+    schema
+      .nullable()
+      .meta({ description: '发送人ID；系统发送时为空', examples: ['1'] }),
+  senderName: (schema) =>
+    schema.nullable().meta({ description: '发送人名称', examples: ['admin'] }),
+  bizType: (schema) =>
+    schema
+      .nullable()
+      .meta({ description: '关联业务类型', examples: ['sys:user'] }),
+  bizId: (schema) =>
+    schema.nullable().meta({ description: '关联业务ID', examples: ['1'] }),
+  publishTime: (schema) =>
+    schema.nullable().meta({
       description: '发布时间；为空表示尚未发布',
       examples: ['2026-07-20 17:39:30'],
     }),
-  expireTime: z
-    .union([z.string(), z.date()])
-    .nullable()
-    .meta({
+  expireTime: (schema) =>
+    schema.nullable().meta({
       description: '过期时间；过期后不再展示',
       examples: ['2026-08-20 17:39:30'],
     }),
@@ -70,11 +51,12 @@ export const sysMessageSchema = createSelectSchema(sysMessage, {
 }).meta({ id: 'SysMessage' })
 
 export const sysMessageReadSchema = createSelectSchema(sysMessageRead, {
-  messageId: z.string().meta({ description: '消息ID', examples: ['1'] }),
-  userId: z.string().meta({ description: '已读用户ID', examples: ['1'] }),
-  readAt: z
-    .union([z.string(), z.date()])
-    .meta({ description: '已读时间', examples: ['2026-07-20 17:39:30'] }),
+  messageId: (schema) =>
+    schema.meta({ description: '消息ID', examples: ['1'] }),
+  userId: (schema) =>
+    schema.meta({ description: '已读用户ID', examples: ['1'] }),
+  readAt: (schema) =>
+    schema.meta({ description: '已读时间', examples: ['2026-07-20 17:39:30'] }),
   ...commonColumnsSchema,
 }).meta({ id: 'SysMessageRead' })
 

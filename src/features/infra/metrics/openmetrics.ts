@@ -1,7 +1,7 @@
 import type { HistogramSnapshot, RuntimeReport } from '@dunx/core'
 import type { HealthReport, HttpStatsReport } from '@dunx/http'
 import type { CacheStatsReport } from '@dunx/infra/cache'
-import type { DbStatsReport } from '@/infra/db/query-metrics'
+import type { DbStatsReport } from '@/infra/db/database/query-metrics'
 import type { QueueStatsReport } from '@dunx/infra/queue'
 import type { RedisStatsReport } from '@dunx/infra/redis'
 

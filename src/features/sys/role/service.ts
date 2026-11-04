@@ -1,4 +1,5 @@
 import { CrudService } from '@/infra/crud'
+import type { SysRoleQuery } from './schema'
 import { sysRole } from '@/schemas'
 import { SysRoleRepository } from './repository'
 
@@ -7,7 +8,9 @@ import { SysRoleRepository } from './repository'
  */
 export class SysRoleService extends CrudService<
   typeof sysRole,
-  SysRoleRepository
+  never,
+  SysRoleRepository,
+  Partial<SysRoleQuery>
 > {
   constructor(override readonly repository: SysRoleRepository) {
     super(repository)

@@ -22,9 +22,6 @@ const routes = {
   },
 } as const
 
-/**
- * 通知公告控制器：九个 CRUD 端点由基类生成，另有自助的「标记已读」
- */
 export class SysNoticeController extends CrudController({
   service: SysNoticeService,
   prefix: 'sys/notice',

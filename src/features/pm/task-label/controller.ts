@@ -7,9 +7,6 @@ import {
 } from './model'
 import { PmTaskLabelService } from './service'
 
-/**
- * 任务标签控制器：九个 CRUD 端点由基类生成
- */
 export class PmTaskLabelController extends CrudController({
   service: PmTaskLabelService,
   prefix: 'pm/task-label',

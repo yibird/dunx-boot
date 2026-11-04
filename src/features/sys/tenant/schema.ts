@@ -5,43 +5,62 @@ import { baseQuerySchema } from '@/infra/model'
 import { commonColumnsSchema, sysTenant } from '@/schemas'
 
 export const sysTenantSchema = createSelectSchema(sysTenant, {
-  tenantName: z.string().meta({ description: '租户名称', example: '默认租户' }),
-  domain: z.string().meta({ description: '绑定域名', example: 'tenant1' }),
-  website: z
-    .string()
-    .meta({ description: '租户官网', example: 'https://tenant1.example.com' }),
-  expireAt: z.iso
-    .datetime()
-    .nullable()
-    .optional()
-    .meta({ description: '授权到期时间', example: '2026-12-31T23:59:59Z' }),
-  superTenant: z
-    .boolean()
-    .meta({ description: '是否是超级租户', example: false }),
-  logo: z
-    .string()
-    .meta({ description: '租户logo', example: 'https://example.com/logo.png' }),
-  address: z.string().meta({ description: '地址', example: '北京市海淀区' }),
-  phone: z.string().meta({ description: '电话', example: '13800000000' }),
-  email: z
-    .string()
-    .meta({ description: '邮箱', example: 'tenant@example.com' }),
-  contact: z.string().meta({ description: '联系人', example: '张三' }),
+  tenantName: (schema) =>
+    schema.meta({ description: '租户名称', examples: ['默认租户'] }),
+  domain: (schema) =>
+    schema.meta({ description: '绑定域名', examples: ['tenant1'] }),
+  website: (schema) =>
+    schema.meta({
+      description: '租户官网',
+      examples: ['https://tenant1.example.com'],
+    }),
+  expireAt: (schema) =>
+    schema.meta({
+      description: '授权到期时间',
+      examples: ['2026-12-31T23:59:59Z'],
+    }),
+  superTenant: (schema) =>
+    schema.meta({ description: '是否是超级租户', examples: [false] }),
+  logo: (schema) =>
+    schema.meta({
+      description: '租户logo',
+      examples: ['https://example.com/logo.png'],
+    }),
+  address: (schema) =>
+    schema.meta({ description: '地址', examples: ['北京市海淀区'] }),
+  phone: (schema) =>
+    schema.meta({ description: '手机号', examples: ['13800000000'] }),
+  email: (schema) =>
+    schema.meta({ description: '邮箱', examples: ['tenant@example.com'] }),
+  contact: (schema) =>
+    schema.meta({ description: '联系人', examples: ['张三'] }),
   ...omit(commonColumnsSchema, ['tenantId']),
 })
 
 /**
- * 角色查询Schema
+ * 角色查询
  */
 export const sysTenantQuerySchema = baseQuerySchema
   .extend({
     tenantName: z
       .string()
       .optional()
-      .meta({ description: '租户名称(模糊查询)' }),
-    phone: z.string().optional().meta({ description: '手机号(模糊查询)' }),
-    contact: z.string().optional().meta({ description: '联系人(模糊查询)' }),
-    email: z.string().optional().meta({ description: '邮箱(模糊查询)' }),
+      .meta({ description: '租户名称', examples: ['默认租户'] }),
+    phone: z
+      .string()
+      .optional()
+      .meta({ description: '手机号', examples: ['13800000000'] }),
+    contact: z
+      .string()
+      .optional()
+      .meta({ description: '联系人', examples: ['张三'] }),
+    email: z
+      .string()
+      .optional()
+      .meta({
+        description: '邮箱',
+        examples: ['tenant@example.com'],
+      }),
   })
   .meta({ id: 'SysTenantQuery' })
 
@@ -81,3 +100,10 @@ export const sysTenantUpdateReqSchema = sysTenantSchema
 export type SysTenantQuery = z.infer<typeof sysTenantQuerySchema>
 export type SysTenantCreateReq = z.infer<typeof sysTenantCreateReqSchema>
 export type SysTenantUpdateReq = z.infer<typeof sysTenantUpdateReqSchema>
+
+export const schema = {
+  response: sysTenantSchema,
+  create: sysTenantCreateReqSchema,
+  update: sysTenantUpdateReqSchema,
+  query: sysTenantQuerySchema,
+}

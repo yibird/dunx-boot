@@ -1,25 +1,20 @@
 import { asc, eq, isNotNull, ne } from 'drizzle-orm'
 import { CrudRepository } from '@/infra/crud'
-import { eqIf, ilikeIf, mergeAnd, withTenant } from '@/infra/db'
+import { mergeAnd, withTenant } from '@/infra/db'
 import { sysMenu, sysRole, sysRoleMenu } from '@/schemas'
 import { BunSQLDatabase } from 'drizzle-orm/bun-sql/postgres'
-import type { SysRoleQuery } from './schema'
 
 export class SysRoleRepository extends CrudRepository<typeof sysRole> {
-  constructor(readonly db: BunSQLDatabase) {
-    super({
-      table: sysRole,
-      cache: true,
-      defaultOrderBy: [asc(sysRole.sort), asc(sysRole.createdAt)],
-    })
-  }
-
-  override getQueryOptions(query: SysRoleQuery) {
-    const where = mergeAnd(
-      ilikeIf(sysRole.roleName, query.roleName),
-      eqIf(sysRole.dataScope, query.dataScope)
+  constructor(override readonly db: BunSQLDatabase) {
+    super(
+      {
+        table: sysRole,
+        queryOptions: {
+          orderBy: [asc(sysRole.sort), asc(sysRole.createdAt)],
+        },
+      },
+      db
     )
-    return { where }
   }
 
   /**

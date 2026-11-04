@@ -1,4 +1,5 @@
 import { CrudService } from '@/infra/crud'
+import type { SysNoticeQuery } from './schema'
 import { sessionContext } from '@/infra/context'
 import { Api } from '@/infra/model'
 import { NotFoundError } from '@/errors'
@@ -10,7 +11,9 @@ import { SysNoticeReadRepository, SysNoticeRepository } from './repository'
  */
 export class SysNoticeService extends CrudService<
   typeof sysNotice,
-  SysNoticeRepository
+  never,
+  SysNoticeRepository,
+  Partial<SysNoticeQuery>
 > {
   constructor(
     override readonly repository: SysNoticeRepository,
@@ -22,7 +25,7 @@ export class SysNoticeService extends CrudService<
   /**
    * 发布人取当前会话，不接受客户端传入
    */
-  override async create(input: Partial<typeof sysNotice.$inferInsert>) {
+  override async create(input: typeof sysNotice.$inferInsert) {
     const session = sessionContext.get()
     return super.create({
       ...input,

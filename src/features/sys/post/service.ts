@@ -1,4 +1,5 @@
 import { CrudService } from '@/infra/crud'
+import type { SysPostQuery } from './schema'
 import { sysPost } from '@/schemas'
 import { SysPostRepository } from './repository'
 
@@ -12,7 +13,9 @@ export const POST_OPTION_LIMIT = 500
  */
 export class SysPostService extends CrudService<
   typeof sysPost,
-  SysPostRepository
+  never,
+  SysPostRepository,
+  Partial<SysPostQuery>
 > {
   constructor(override readonly repository: SysPostRepository) {
     super(repository)

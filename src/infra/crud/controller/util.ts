@@ -19,8 +19,6 @@ export function getExcludes(options: {
 
 /**
  * 获取权限前缀：驼峰按词拆开、转小写，再用分隔符连接。
- * `SysPost` → `sys:post`、`SysDictType` → `sys:dict:type`、`HTTPServer` →
- * `http:server`；已经用 `-`/`_`/空格 分好词的也认（`sys-post` → `sys:post`）。
  *
  * @param modelName 组件名前缀，如 `SysPost`
  * @param separator 词间分隔符，缺省 `:`
@@ -44,8 +42,8 @@ export function getPermissionPrefix(
  * 获取权限字符串：`modelName` 派生前缀 + 端点名
  *
  * @param action 端点名（动作）
- * @param options 组件名前缀与分隔符（分隔符缺省 `:`）
- * @returns 完整的权限字符串；`modelName` 为空时就是端点名本身
+ * @param options 组件名前缀与分隔符
+ * @returns 完整的权限字符串
  */
 export function getPermission(
   action: string,

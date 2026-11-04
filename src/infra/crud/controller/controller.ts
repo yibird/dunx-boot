@@ -4,10 +4,17 @@ import { ApiDoc } from '@dunx/openapi'
 import { Permission } from '@/infra/http'
 import { z } from 'zod'
 import { CRUD_ENDPOINT } from './constant'
-import { apiRouteResponse } from '@/infra/model'
+import { Api, apiRouteResponse } from '@/infra/model'
 import { ApiStatus } from '@/constants'
 import { getExcludes, getPermission, getTags } from './util'
 import type { CrudControllerOptions, CrudControllerService } from './types'
+
+/**
+ * 统一成功响应
+ */
+function ok(data: unknown) {
+  return Response.json(Api.ok(data), { status: ApiStatus.OK })
+}
 
 /**
  * 生成基类继承的最小基类：只做一件事——持有该域的业务服务
@@ -20,6 +27,9 @@ export abstract class AbstractCrudController<
 
 /**
  * 生成一个可继承的 CRUD 控制器基类
+ *
+ * @param options 控制器配置
+ * @returns 生成的控制器类
  */
 export function CrudController<
   TService extends CrudControllerService,
@@ -91,15 +101,15 @@ export function CrudController<
     @Get(CRUD_ENDPOINT.GET_LIST, schemas.getList)
     async getList(input: Input<typeof schemas.getList>) {
       const res = await this.service.getList(input.query)
-      return Response.json(res, { status: ApiStatus.OK })
+      return ok(res)
     }
 
     @Permission(getPermission(CRUD_ENDPOINT.GET_PAGE_LIST, options))
     @ApiDoc({ summary: '获取分页列表' })
     @Get(CRUD_ENDPOINT.GET_PAGE_LIST, schemas.getPageList)
     async getPageList(input: Input<typeof schemas.getPageList>) {
-      const result = await this.service.getPageList(input.query)
-      return Response.json(result, { status: ApiStatus.OK })
+      const res = await this.service.getPageList(input.query, input.query)
+      return ok(res)
     }
 
     @Permission(getPermission(CRUD_ENDPOINT.GET_RECORD, options))
@@ -107,7 +117,7 @@ export function CrudController<
     @Get(CRUD_ENDPOINT.GET_RECORD, schemas.getRecord)
     async getRecord(input: Input<typeof schemas.getRecord>) {
       const res = await this.service.getRecord(input.query.id)
-      return Response.json(res, { status: ApiStatus.OK })
+      return ok(res)
     }
 
     @Permission(getPermission(CRUD_ENDPOINT.CREATE, options))
@@ -115,7 +125,7 @@ export function CrudController<
     @Post(CRUD_ENDPOINT.CREATE, schemas.create)
     async create({ body }: Input<typeof schemas.create>) {
       const res = await this.service.create(body)
-      return Response.json(res, { status: ApiStatus.OK })
+      return ok(res)
     }
 
     @Permission(getPermission(CRUD_ENDPOINT.CREATE_MANY, options))
@@ -123,7 +133,7 @@ export function CrudController<
     @Post(CRUD_ENDPOINT.CREATE_MANY, schemas.createMany)
     async createMany({ body }: Input<typeof schemas.createMany>) {
       const res = await this.service.createMany(body)
-      return Response.json(res, { status: ApiStatus.OK })
+      return ok(res)
     }
 
     @Permission(getPermission(CRUD_ENDPOINT.UPDATE, options))
@@ -131,7 +141,7 @@ export function CrudController<
     @Post(CRUD_ENDPOINT.UPDATE, schemas.update)
     async update({ body }: Input<typeof schemas.update>) {
       const res = await this.service.update((body as { id: string }).id, body)
-      return Response.json(res, { status: ApiStatus.OK })
+      return ok(res)
     }
 
     @Permission(getPermission(CRUD_ENDPOINT.UPDATE_MANY, options))
@@ -139,15 +149,15 @@ export function CrudController<
     @Post(CRUD_ENDPOINT.UPDATE_MANY, schemas.updateMany)
     async updateMany({ body }: Input<typeof schemas.updateMany>) {
       const res = await this.service.updateMany(body.ids, body.data)
-      return Response.json(res, { status: ApiStatus.OK })
+      return ok(res)
     }
 
     @Permission(getPermission(CRUD_ENDPOINT.DELETE, options))
     @ApiDoc({ summary: '删除' })
     @Post(CRUD_ENDPOINT.DELETE, schemas.deleteById)
     async delete(input: Input<typeof schemas.deleteById>) {
-      const result = await this.service.delete(input.body.id)
-      return Response.json(result, { status: ApiStatus.OK })
+      const res = await this.service.delete(input.body.id)
+      return ok(res)
     }
 
     @Permission(getPermission(CRUD_ENDPOINT.DELETE_MANY, options))
@@ -155,7 +165,7 @@ export function CrudController<
     @Post(CRUD_ENDPOINT.DELETE_MANY, schemas.deleteMany)
     async deleteMany({ body }: Input<typeof schemas.deleteMany>) {
       const res = await this.service.deleteMany(body)
-      return Response.json(res, { status: ApiStatus.OK })
+      return ok(res)
     }
   }
 

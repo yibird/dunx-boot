@@ -7,10 +7,6 @@ import {
 } from './model'
 import { PmTaskActivityService } from './service'
 
-/**
- * 任务动态控制器：动态是审计性数据，这里只开放读端点，
- * 写入交给具体业务动作（与操作日志同一策略）。
- */
 export class PmTaskActivityController extends CrudController({
   service: PmTaskActivityService,
   prefix: 'pm/task-activity',

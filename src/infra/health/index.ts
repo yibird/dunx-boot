@@ -7,7 +7,7 @@ import { AppMemoryIndicator } from './memory-indicator'
 import { AppRedisIndicator } from './redis-indicator'
 
 import type { DynamicModule } from '@dunx/core'
-import type { DbSchema } from '../db/db'
+import type { DbSchema } from '../db/database/db'
 
 /**
  * 健康检查：挂载 `/api/health/live` 与 `/api/health/ready`。

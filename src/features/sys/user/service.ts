@@ -4,6 +4,7 @@ import { sysUser } from '@/schemas'
 
 export class SysUserService extends CrudService<
   typeof sysUser,
+  'password',
   SysUserRepository
 > {
   constructor(override readonly repository: SysUserRepository) {

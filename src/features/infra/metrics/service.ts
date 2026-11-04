@@ -3,7 +3,7 @@ import { HealthRegistry, RequestMetrics } from '@dunx/http'
 import { CacheMetrics } from '@dunx/infra/cache'
 import { RedisMetrics } from '@dunx/infra/redis'
 import { QueueMetrics } from '@dunx/infra/queue'
-import { QueryMetrics } from '@/infra/db/query-metrics'
+import { QueryMetrics } from '@/infra/db/database/query-metrics'
 import { BunSQLDatabase } from 'drizzle-orm/bun-sql/postgres'
 import { renderOpenMetrics } from './openmetrics'
 import type {

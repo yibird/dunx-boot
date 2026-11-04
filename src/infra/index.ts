@@ -19,7 +19,7 @@ import { AppDashboardModule } from './dashboard'
 import { HttpModule } from './http'
 import { AppLoggerModule } from './log'
 import { AppTracingModule } from './tracing'
-import { EventListenerModule } from '@/events'
+import { EventHandlerModule } from '@/events'
 
 /**
  * 基础设施模块
@@ -50,7 +50,7 @@ export const infraModules = [
 ]
 
 @Module({
-  imports: [...infraModules, FeatureModule, EventListenerModule, WsModule],
+  imports: [...infraModules, FeatureModule, EventHandlerModule, WsModule],
   exports: [],
 })
 export class AppModule {}

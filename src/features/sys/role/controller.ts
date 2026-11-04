@@ -1,10 +1,5 @@
 import { CrudController } from '@/infra/crud'
-import {
-  sysRoleSchema,
-  sysRoleCreateReqSchema,
-  sysRoleQuerySchema,
-  sysRoleUpdateReqSchema,
-} from './schema'
+import { schema } from './schema'
 import { SysRoleService } from './service'
 
 export class SysRoleController extends CrudController({
@@ -12,10 +7,5 @@ export class SysRoleController extends CrudController({
   prefix: 'sys/role',
   tags: ['角色'],
   modelName: 'SysRole',
-  schema: {
-    response: sysRoleSchema,
-    create: sysRoleCreateReqSchema,
-    update: sysRoleUpdateReqSchema,
-    query: sysRoleQuerySchema,
-  },
+  schema,
 }) {}

@@ -7,9 +7,6 @@ import {
 } from './model'
 import { PmProjectService } from './service'
 
-/**
- * 项目控制器：九个 CRUD 端点由基类生成
- */
 export class PmProjectController extends CrudController({
   service: PmProjectService,
   prefix: 'pm/project',

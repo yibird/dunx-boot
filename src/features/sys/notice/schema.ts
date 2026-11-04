@@ -9,53 +9,41 @@ import { commonColumnsSchema, sysNotice, sysNoticeRead } from '@/schemas'
 import { SYS_NOTICE_SEND_MODE, SYS_NOTICE_TYPE } from '@/constants'
 
 export const sysNoticeSchema = createSelectSchema(sysNotice, {
-  title: z
-    .string()
-    .meta({ description: '通知标题', examples: ['国庆放假公告'] }),
-  content: z
-    .string()
-    .nullable()
-    .meta({ description: '通知内容', examples: ['公司于 10 月 1 日放假'] }),
-  noticeType: z
-    .union([
-      z.literal(SYS_NOTICE_TYPE.Notice),
-      z.literal(SYS_NOTICE_TYPE.Announcement),
-    ])
-    .meta({
-      description: '通知类型：1 通知 2 公告',
+  title: (schema) =>
+    schema.meta({ description: '通知标题', examples: ['国庆放假公告'] }),
+  content: (schema) =>
+    schema.meta({
+      description: '通知内容',
+      examples: ['公司于 10 月 1 日放假'],
+    }),
+  noticeType: (schema) =>
+    schema.meta({
+      description: '通知类型:1 通知 2 公告',
       examples: [SYS_NOTICE_TYPE.Notice],
     }),
-  sendMode: z
-    .union([
-      z.literal(SYS_NOTICE_SEND_MODE.Immediate),
-      z.literal(SYS_NOTICE_SEND_MODE.Scheduled),
-    ])
-    .meta({
-      description: '发送方式：immediate 立即发送 scheduled 定时发送',
+
+  sendMode: (schema) =>
+    schema.meta({
+      description: '发送方式:immediate 立即发送 scheduled 定时发送',
       examples: [SYS_NOTICE_SEND_MODE.Immediate],
     }),
-  scheduledAt: z
-    .union([z.string(), z.date()])
-    .nullable()
-    .meta({
-      description: '定时发送时间；立即发送时为空',
+
+  scheduledAt: (schema) =>
+    schema.meta({
+      description: '定时发送时间;立即发送时为空',
       examples: ['2026-07-20 17:39:30'],
     }),
-  publishTime: z
-    .union([z.string(), z.date()])
-    .nullable()
-    .meta({
-      description: '实际发布时间；为空表示尚未发布',
+  publishTime: (schema) =>
+    schema.meta({
+      description: '实际发布时间;为空表示尚未发布',
       examples: ['2026-07-20 17:39:30'],
     }),
-  publisherId: z
-    .string()
-    .nullable()
-    .meta({ description: '发布人ID；系统发布时为空', examples: ['1'] }),
-  publisherName: z
-    .string()
-    .nullable()
-    .meta({ description: '发布人名称', examples: ['admin'] }),
+  publisherId: (schema) =>
+    schema.meta({ description: '发布人ID;系统发布时为空', examples: ['1'] }),
+
+  publisherName: (schema) =>
+    schema.meta({ description: '发布人名称', examples: ['admin'] }),
+
   ...commonColumnsSchema,
 }).meta({ id: 'SysNotice' })
 
@@ -69,7 +57,7 @@ export const sysNoticeReadSchema = createSelectSchema(sysNoticeRead, {
 }).meta({ id: 'SysNoticeRead' })
 
 /**
- * 通知类型：1 通知 2 公告
+ * 通知类型:1 通知 2 公告
  */
 const noticeTypeSchema = z
   .union([
@@ -77,12 +65,12 @@ const noticeTypeSchema = z
     z.literal(SYS_NOTICE_TYPE.Announcement),
   ])
   .meta({
-    description: '通知类型：1 通知 2 公告',
+    description: '通知类型:1 通知 2 公告',
     examples: [SYS_NOTICE_TYPE.Notice],
   })
 
 /**
- * 发送方式：immediate 立即发送 scheduled 定时发送
+ * 发送方式:immediate 立即发送 scheduled 定时发送
  */
 const sendModeSchema = z
   .union([
@@ -90,7 +78,7 @@ const sendModeSchema = z
     z.literal(SYS_NOTICE_SEND_MODE.Scheduled),
   ])
   .meta({
-    description: '发送方式：immediate 立即发送 scheduled 定时发送',
+    description: '发送方式:immediate 立即发送 scheduled 定时发送',
     examples: [SYS_NOTICE_SEND_MODE.Immediate],
   })
 

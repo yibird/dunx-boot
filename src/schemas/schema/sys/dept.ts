@@ -12,6 +12,8 @@ export const sysDept = pgTable('sys_dept', {
   path: varchar('path', { length: 500 }).default('').notNull(),
   leaderId: bigintString('leader_id'),
   leaderName: varchar('leader_name', { length: 64 }),
+  leaderPhone: varchar('leader_phone', { length: 64 }),
+  leaderEmail: varchar('leader_email', { length: 64 }),
   ...commonColumns,
 })
 

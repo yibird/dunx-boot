@@ -1,6 +1,6 @@
 import { OpenApiModule, type OpenApiInfo } from '@dunx/openapi'
 import { AppConfigService } from '../config'
-import { BearerDocsRenderer } from './bearer-docs-renderer'
+import { ApiDocsRenderer } from './renderer'
 import type { ModuleRef } from '@dunx/core'
 
 /**
@@ -13,5 +13,5 @@ export const createOpenApiModule = (rootModule: ModuleRef) =>
     },
     inject: [AppConfigService] as const,
     root: rootModule,
-    renderer: new BearerDocsRenderer(),
+    renderer: new ApiDocsRenderer(),
   })

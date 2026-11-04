@@ -26,3 +26,5 @@ Thumbs.db
 *.zip
 *.tar.gz
 *.rar
+# 基准结果
+benchmark/results/

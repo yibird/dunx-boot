@@ -1,4 +1,5 @@
 import { CrudService } from '@/infra/crud'
+import type { SysOperationLogQuery } from './schema'
 import { sysOperationLog } from '@/schemas'
 import { SysOperationLogRepository } from './repository'
 
@@ -7,7 +8,9 @@ import { SysOperationLogRepository } from './repository'
  */
 export class SysOperationLogService extends CrudService<
   typeof sysOperationLog,
-  SysOperationLogRepository
+  never,
+  SysOperationLogRepository,
+  Partial<SysOperationLogQuery>
 > {
   /**
    * 构造器不能省：零参构造会继承基类的参数记录（`TRepo` 是类型参数 → `unresolved`），

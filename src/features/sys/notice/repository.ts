@@ -1,30 +1,22 @@
-import { desc } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
+import { BunSQLDatabase } from 'drizzle-orm/bun-sql/postgres'
 import { CrudRepository } from '@/infra/crud'
-import { eqIf, ilikeIf, mergeAnd } from '@/infra/db'
 import { sysNotice, sysNoticeRead } from '@/schemas'
-import type { SysNoticeQuery, SysNoticeReadQuery } from './schema'
 
 /**
  * 通知公告仓储
  */
 export class SysNoticeRepository extends CrudRepository<typeof sysNotice> {
-  constructor() {
-    super({
-      table: sysNotice,
-      cache: true,
-      defaultOrderBy: [desc(sysNotice.id)],
-    })
-  }
-
-  override getQueryOptions(query: Partial<SysNoticeQuery>) {
-    return {
-      where: mergeAnd(
-        ilikeIf(sysNotice.title, query.title),
-        eqIf(sysNotice.noticeType, query.noticeType),
-        eqIf(sysNotice.sendMode, query.sendMode),
-        eqIf(sysNotice.dataStatus, query.dataStatus)
-      ),
-    }
+  constructor(db?: BunSQLDatabase) {
+    super(
+      {
+        table: sysNotice,
+        queryOptions: {
+          orderBy: [desc(sysNotice.id)],
+        },
+      },
+      db
+    )
   }
 }
 
@@ -36,29 +28,27 @@ export class SysNoticeRepository extends CrudRepository<typeof sysNotice> {
 export class SysNoticeReadRepository extends CrudRepository<
   typeof sysNoticeRead
 > {
-  constructor() {
-    super({
-      table: sysNoticeRead,
-      defaultOrderBy: [desc(sysNoticeRead.id)],
-    })
-  }
-
-  override getQueryOptions(query: SysNoticeReadQuery) {
-    return {
-      where: mergeAnd(
-        eqIf(sysNoticeRead.noticeId, query.noticeId),
-        eqIf(sysNoticeRead.userId, query.userId)
-      ),
-    }
+  constructor(db?: BunSQLDatabase) {
+    super(
+      {
+        table: sysNoticeRead,
+        queryOptions: {
+          orderBy: [desc(sysNoticeRead.id)],
+        },
+      },
+      db
+    )
   }
 
   /**
    * 查询某个用户对某条通知的已读记录
    */
   async findRead(noticeId: string, userId: string) {
-    const [row] = await this.findMany<SysNoticeReadQuery>({
-      noticeId,
-      userId,
+    const [row] = await this.getMany({
+      where: and(
+        eq(sysNoticeRead.noticeId, noticeId),
+        eq(sysNoticeRead.userId, userId)
+      ),
     })
     return row
   }

@@ -56,7 +56,7 @@ ON CONFLICT ("id") DO NOTHING;
 -- 已移除 component_path、visible；is_external 使用表默认值 false。
 -- 已实现的 CRUD 权限采用当前控制器的权限码，其余原菜单权限保留。
 INSERT INTO "public"."sys_menu" (
-  "id", "menu_name", "SYS_MENU_TYPE", "root_id", "parent_id", "route_path", "permission", "icon", "is_cache", "sort", "creator_name", "tenant_id"
+  "id", "menu_name", "menu_type", "root_id", "parent_id", "route_path", "permission", "icon", "is_cache", "sort", "creator_name", "tenant_id"
 ) VALUES
   (1, '系统管理', 1, 0, 0, '/sys', NULL, 'i-lucide:cog', false, 10, 'system', 1),
   (2, '系统日志', 1, 1, 1, '/sys/log', NULL, 'i-lucide:logs', false, 90, 'system', 1),

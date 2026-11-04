@@ -1,2 +1,5 @@
-export * from './types'
 export * from './repository'
+export * from './plugin'
+export * from './types'
+export * from './plugins'
+export * from './defaults'

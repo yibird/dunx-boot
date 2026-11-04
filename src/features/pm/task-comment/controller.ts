@@ -7,9 +7,6 @@ import {
 } from './model'
 import { PmTaskCommentService } from './service'
 
-/**
- * 任务评论控制器：九个 CRUD 端点由基类生成
- */
 export class PmTaskCommentController extends CrudController({
   service: PmTaskCommentService,
   prefix: 'pm/task-comment',

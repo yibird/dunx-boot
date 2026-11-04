@@ -5,6 +5,7 @@ import type {
   LogConfig,
   OpenapiConfig,
   RedisConfig,
+  ResilienceConfig,
   SecurityConfig,
   TracingConfig,
 } from '@/infra/config'
@@ -115,6 +116,14 @@ const dashboard: Partial<DashboardConfig> = {
   enabled: true,
 }
 
+/**
+ * 压测时通过环境变量放宽限流，避免默认 1000 次/分钟影响吞吐测量。
+ */
+const benchThrottleLimit = Bun.env['BENCH_THROTTLE_LIMIT']
+const resilience = (
+  benchThrottleLimit ? { throttle: { limit: Number(benchThrottleLimit) } } : {}
+) as Partial<ResilienceConfig>
+
 export default {
   ai: {
     ...(Bun.env.AI_CREDENTIAL_SECRET
@@ -129,4 +138,5 @@ export default {
   security,
   client,
   dashboard,
+  resilience,
 }

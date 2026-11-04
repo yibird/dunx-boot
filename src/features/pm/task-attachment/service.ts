@@ -1,4 +1,5 @@
 import { CrudService } from '@/infra/crud'
+import type { PmTaskAttachmentQuery } from './model'
 import { pmTaskAttachment } from '@/schemas'
 import { PmTaskAttachmentRepository } from './repository'
 
@@ -7,7 +8,9 @@ import { PmTaskAttachmentRepository } from './repository'
  */
 export class PmTaskAttachmentService extends CrudService<
   typeof pmTaskAttachment,
-  PmTaskAttachmentRepository
+  never,
+  PmTaskAttachmentRepository,
+  Partial<PmTaskAttachmentQuery>
 > {
   constructor(override readonly repository: PmTaskAttachmentRepository) {
     super(repository)

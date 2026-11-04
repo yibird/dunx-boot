@@ -4,8 +4,10 @@ import { baseQuerySchema } from '@/infra/model'
 import { commonColumnsSchema, sysPost } from '@/schemas'
 
 export const sysPostSchema = createSelectSchema(sysPost, {
-  postName: z.string().meta({ description: '岗位名称', example: '管理员' }),
-  postLevel: z.number().meta({ description: '岗位等级', example: 2 }),
+  postName: (schema) =>
+    schema.meta({ description: '岗位名称', examples: ['管理员'] }),
+  postLevel: (schema) =>
+    schema.meta({ description: '岗位等级', examples: [2] }),
   ...commonColumnsSchema,
 }).meta({ id: 'SysPost' })
 
@@ -35,6 +37,9 @@ export const sysPostCreateReqSchema = sysPostSchema
     postLevel: true,
     remark: true,
   })
+  .partial({
+    remark: true,
+  })
   .meta({ id: 'SysPostCreateReq' })
 
 /**
@@ -49,3 +54,10 @@ export const sysPostUpdateReqSchema = sysPostCreateReqSchema
 export type SysPostQuery = z.infer<typeof sysPostQuerySchema>
 export type SysPostCreateReq = z.infer<typeof sysPostCreateReqSchema>
 export type SysPostUpdateReq = z.infer<typeof sysPostUpdateReqSchema>
+
+export const schema = {
+  response: sysPostSchema,
+  create: sysPostCreateReqSchema,
+  update: sysPostUpdateReqSchema,
+  query: sysPostQuerySchema,
+}

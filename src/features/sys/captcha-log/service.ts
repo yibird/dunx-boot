@@ -1,7 +1,7 @@
 import { Pager } from '@/infra/model'
 import { SysCaptchaLogRepository } from './repository'
 import type { SysCaptchaLog } from '@/schemas'
-import type { SysCaptchaLogQuery } from './model'
+import type { SysCaptchaLogQuery } from './schema'
 
 export class SysCaptchaLogService {
   constructor(readonly repository: SysCaptchaLogRepository) {}

@@ -1,13 +1,13 @@
 import { CrudService } from '@/infra/crud'
 import { sysDept } from '@/schemas'
 import { SysDeptRepository } from './repository'
+import type { SysDeptQuery } from './schema'
 
-/**
- * 部门业务层
- */
 export class SysDeptService extends CrudService<
   typeof sysDept,
-  SysDeptRepository
+  never,
+  SysDeptRepository,
+  Partial<SysDeptQuery>
 > {
   constructor(override readonly repository: SysDeptRepository) {
     super(repository)

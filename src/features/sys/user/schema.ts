@@ -1,69 +1,63 @@
 import { z } from 'zod'
+import { createSelectSchema } from 'drizzle-orm/zod'
 import { baseQuerySchema } from '@/infra/model'
 import { commonColumnsSchema, sysUser } from '@/schemas'
-import { createSelectSchema } from 'drizzle-orm/zod'
 
 export const sysUserSchema = createSelectSchema(sysUser, {
-  account: z.string().meta({ description: '账号', example: 'admin' }),
-  password: z.string().meta({ description: '密码', example: '123456' }),
-  nickname: z.string().meta({ description: '昵称', example: '管理员' }),
-  avatar: z
-    .string()
-    .meta({ description: '头像', example: 'https://example.com/avatar.jpg' }),
-  sex: z.number().meta({ description: '性别', example: 0 }),
-  age: z.number().meta({ description: '年龄', example: 30 }),
-  phone: z
-    .string()
-    .nullable()
-    .optional()
-    .meta({ description: '手机号', example: '13800000000' }),
-  idCard: z
-    .string()
-    .refine(
-      (value) =>
-        value === '' ||
-        /^[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/.test(
-          value
-        ),
-      { message: '身份证号格式不正确' }
-    )
-    .nullable()
-    .optional()
-    .meta({
-      description: '身份证号,可为空',
-      example: '44030419900101001X',
+  account: (schema) =>
+    schema.meta({ description: '账号', examples: ['admin'] }),
+  password: (schema) =>
+    schema.meta({ description: '密码', examples: ['123456'] }),
+  nickname: (schema) =>
+    schema.meta({ description: '昵称', examples: ['管理员'] }),
+  avatar: (schema) =>
+    schema.meta({
+      description: '头像',
+      examples: ['https://example.com/avatar.jpg'],
     }),
-  email: z
-    .union([z.email(), z.literal('')])
-    .nullable()
-    .optional()
-    .meta({ description: '邮箱', example: 'admin@example.com' }),
-  roleId: z
-    .string()
-    .nullable()
-    .optional()
-    .meta({ description: '角色 id', example: '1' }),
-  deptId: z
-    .string()
-    .nullable()
-    .optional()
-    .meta({ description: '部门 id', example: '1' }),
-  postId: z
-    .string()
-    .nullable()
-    .optional()
-    .meta({ description: '岗位 id', example: '1' }),
+  sex: (schema) => schema.meta({ description: '性别', examples: [0] }),
+  age: (schema) => schema.meta({ description: '年龄', examples: [30] }),
+  phone: (schema) =>
+    schema.meta({ description: '手机号', examples: ['13800000000'] }),
+  idCard: (schema) =>
+    schema.meta({
+      description: '身份证号,可为空',
+      examples: ['44030419900101001X'],
+    }),
+  email: (schema) =>
+    schema.meta({ description: '邮箱', examples: ['admin@example.com'] }),
+  roleId: (schema) => schema.meta({ description: '角色 id', examples: ['1'] }),
+  deptId: (schema) => schema.meta({ description: '部门 id', examples: ['1'] }),
+  postId: (schema) => schema.meta({ description: '岗位 id', examples: ['1'] }),
   ...commonColumnsSchema,
 }).meta({ id: 'SysUser' })
 
 export const sysUserQuerySchema = baseQuerySchema
   .extend({
-    account: z.string().optional().meta({ description: '账号（模糊查询）' }),
-    nickname: z.string().optional().meta({ description: '昵称(模糊查询)' }),
-    phone: z.string().optional().meta({ description: '手机号(模糊查询)' }),
-    roleName: z.string().optional().meta({ description: '角色名称(模糊查询)' }),
-    deptName: z.string().optional().meta({ description: '部门名称(模糊查询)' }),
-    postName: z.string().optional().meta({ description: '岗位名称(模糊查询)' }),
+    account: z
+      .string()
+      .optional()
+      .meta({ description: '账号（模糊查询）', examples: ['admin'] }),
+    nickname: z
+      .string()
+      .optional()
+      .meta({ description: '昵称(模糊查询)', examples: ['我叫大笨蛋'] }),
+    phone: z
+      .string()
+      .optional()
+      .meta({ description: '手机号(模糊查询)', examples: ['13800000000'] }),
+    roleName: z
+      .string()
+      .optional()
+      .meta({ description: '角色名称(模糊查询)', examples: ['管理员'] }),
+    deptName: z
+      .string()
+      .optional()
+      .meta({ description: '部门名称(模糊查询)', examples: ['财务部'] }),
+    postName: z
+      .string()
+      .optional()
+      .meta({ description: '岗位名称(模糊查询)', examples: ['经理'] }),
   })
   .meta({ id: 'SysUserQuery' })
 
@@ -77,6 +71,8 @@ export const sysUserCreateReqSchema = sysUserSchema
     age: true,
     phone: true,
     email: true,
+    idCard: true,
+    roleId: true,
     deptId: true,
     postId: true,
     sort: true,
@@ -102,3 +98,10 @@ export const sysUserUpdateReqSchema = sysUserSchema
 export type SysUserQuery = z.infer<typeof sysUserQuerySchema>
 export type SysUserCreateReq = z.infer<typeof sysUserCreateReqSchema>
 export type SysUserUpdateReq = z.infer<typeof sysUserUpdateReqSchema>
+
+export const schema = {
+  response: sysUserSchema,
+  create: sysUserCreateReqSchema,
+  update: sysUserUpdateReqSchema,
+  query: sysUserQuerySchema,
+}

@@ -1,4 +1,5 @@
 import { CrudService } from '@/infra/crud'
+import type { PmTaskLabelQuery } from './model'
 import { pmTaskLabel } from '@/schemas'
 import { PmTaskLabelRepository } from './repository'
 
@@ -7,7 +8,9 @@ import { PmTaskLabelRepository } from './repository'
  */
 export class PmTaskLabelService extends CrudService<
   typeof pmTaskLabel,
-  PmTaskLabelRepository
+  never,
+  PmTaskLabelRepository,
+  Partial<PmTaskLabelQuery>
 > {
   constructor(override readonly repository: PmTaskLabelRepository) {
     super(repository)

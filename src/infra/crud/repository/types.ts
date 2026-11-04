@@ -5,213 +5,267 @@ import type {
   PgQueryResultHKT,
   PgTable,
 } from 'drizzle-orm/pg-core'
-import { AUDIT_COLUMNS } from './constant'
+import type { CrudPlugin } from './plugin'
 
 /**
- * 数据层的类型：表与行的推断结果、构造仓储的配置。
- *
- * 通用仓储本身在 `repository.ts`；把配置解析成 `CrudConfig` 的那一步在 `config/`
- * （那是内部实现，不出现在 `@/infra/crud` 的公开面上）。
- */
-
-/**
- * 表对应的查询返回类型。
- */
-export type CrudSelect<T extends PgTable> = InferSelectModel<T>
-/**
- * 表对应的写入类型。
- */
-export type CrudInsert<T extends PgTable> = InferInsertModel<T>
-/**
- * 仓储返回的行：`TIgnore` 里的列不出现在结果里。
- *
- * `TIgnore` 是 select 字段的联合（`keyof CrudSelect<T>`），缺省 `never`
- * 表示不忽略任何列。忽略只影响**返回**，不影响写入——被忽略的列照常可以写。
- */
-export type CrudRow<
-  T extends PgTable,
-  TIgnore extends keyof CrudSelect<T> = never,
-> = Omit<CrudSelect<T>, TIgnore>
-
-/**
- * 通用 CRUD 需要的数据库能力；`BunSQLDatabase` 等 drizzle 实例都可赋值。
+ * 通用 CRUD 需要的数据库能力；BunSQLDatabase 与事务句柄都满足。
  */
 export type CrudDatabase = PgAsyncDatabase<PgQueryResultHKT>
 
 /**
- * 表上可作为 CRUD 配置目标的列名。
- *
- * 配置项都接收列名而不是任意字符串，拼错会在编译期报错；构造时还会再校验一次。
+ * 表对应的写入类型
  */
-export type CrudColumn<TTable extends PgTable> = keyof TTable & string
+export type CrudInsert<TTable extends PgTable> = InferInsertModel<TTable>
 
 /**
- * 审计字段；缺省按约定列名自动识别。
+ * 表对应的查询结果类型；`TIgnore` 中的列不会出现在结果里。
  */
-export type CrudAuditField = keyof typeof AUDIT_COLUMNS
-
-export type CrudTenantOptions = {
-  /**
-   * @desc 是否开启多租户，默认 true
-   * @default true
-   */
-  readonly enabled?: boolean
-  /**
-   * @desc 租户列名
-   * @default 'tenantId'
-   */
-  readonly columnName?: string
-  /**
-   * @desc 忽略的表名
-   * @default []
-   */
-  readonly ignoreTables?: readonly string[]
-}
+export type CrudRow<
+  TTable extends PgTable,
+  TIgnore extends keyof TTable['_']['columns'] = never,
+> = Omit<InferSelectModel<TTable>, TIgnore>
 
 /**
- * 软删除配置。
- *
- * `enabled: false` 走物理删除；列名缺省按约定 `deleted`。配置的列必须在表上，
- * 否则构造报错——表上没有软删列时要显式关掉。已删除值 / 未删除值缺省布尔
- * `true` / `false`。
+ * 新增字段：由 drizzle 推导出的必填/可选列
  */
-export interface CrudSoftDeleteOptions {
-  /**
-   * @desc 是否开启软删除，默认 true
-   * @default true
-   */
-  readonly enabled?: boolean
-  /**
-   * @desc 软删除列名
-   * @default 'deleted'
-   */
-  readonly columnName?: string
-  /**
-   * @desc 已删除值
-   * @default true
-   */
-  readonly deletedValue?: unknown
-  /**
-   * @desc 未删除值
-   * @default false
-   */
-  readonly notDeletedValue?: unknown
-}
+export type CrudCreate<TTable extends PgTable> = CrudInsert<TTable>
 
 /**
- * 审计填充配置。
- *
- * `enabled: false` 整块关闭；`columns` 是 9 个审计字段的完整映射，值必须是表上的
- * 列名，缺一个就构造报错。缺省就是 `commonColumns` 的约定列名。
+ * 更新字段：允许只提交需要修改的列
  */
-export type CrudAuditOptions = {
-  /**
-   * @desc 是否开启审计填充，默认 true
-   * @default true
-   */
-  readonly enabled?: boolean
-  /**
-   * @desc 各审计字段的列名
-   */
-  readonly columns?: Record<CrudAuditField, string>
-}
+export type CrudUpdate<TTable extends PgTable> = Partial<CrudInsert<TTable>>
 
-export interface CrudOptimisticLockOptions {
-  /**
-   * @desc 是否开启乐观锁，默认 true
-   * @default true
-   */
-  readonly enabled?: boolean
-  /**
-   * @desc 乐观锁列名
-   * @default 'version'
-   */
-  readonly columnName?: string
-}
+/**
+ * 单条或批量操作的结果
+ */
+export type CrudResult<TTable extends PgTable> =
+  | CrudRow<TTable>
+  | CrudRow<TTable>[]
+  | undefined
 
+/**
+ * CRUD 操作类型
+ */
+export type CrudOperation =
+  | 'query'
+  | 'count'
+  | 'create'
+  | 'update'
+  | 'delete'
+  | 'createMany'
+  | 'updateMany'
+  | 'deleteMany'
+
+/**
+ * 查询选项
+ */
 export interface CrudQueryOptions {
   /**
-   * @desc 过滤条件；缺省不设
-   * @default
+   * 当前的 where 条件；插件可以通过重新赋值叠加条件
    */
-  readonly where?: SQL | undefined
-  /**
-   * 排序；缺省用 `options.defaultOrderBy`，两者都没有就不带 ORDER BY
-   */
-  readonly orderBy?: readonly (SQL | AnyPgColumn)[]
+  where?: SQL | undefined
+  orderBy?: (SQL | AnyPgColumn)[] | undefined
+  groupBy?: (SQL | AnyPgColumn)[] | undefined
+  limit?: number | undefined
+  offset?: number | undefined
 }
 
 /**
- * CrudRepository 配置
- *
- * @template TTable 目标表类型
- * @template TIgnore 查询忽略的列名类型
+ * 操作上下文基类
  */
-export interface CrudRepositoryOptions<
-  TTable extends PgTable = PgTable,
-  TIgnore extends keyof CrudSelect<TTable> = never,
-> {
+export interface BaseContext<TTable extends PgTable = PgTable> {
   /**
    * 目标表
    */
   readonly table: TTable
   /**
-   * @desc 主键列名
-   * @default 'id'
+   * 数据库连接
    */
-  readonly keyColumnName?: string
+  readonly db: CrudDatabase
   /**
-   * @desc 多租户配置；缺省按 `tenantId` 列自动启用
-   * @default
+   * 操作类型
    */
-  readonly tenant?: CrudTenantOptions
+  readonly operation: CrudOperation
   /**
-   * @desc 软删除配置；缺省按 `deleted` 列自动启用
-   * @default
+   * 元数据：插件间传递数据
    */
-  readonly softDelete?: CrudSoftDeleteOptions
-  /**
-   * @desc 乐观锁配置
-   * @default
-   */
-  readonly optimisticLock?: CrudOptimisticLockOptions
-  /**
-   * @desc 审计字段配置
-   * @default
-   */
-  readonly audit?: CrudAuditOptions
-  /**
-   * @desc 查询忽略的列名集合
-   * @default []
-   */
-  readonly ignoreColumns?: readonly TIgnore[]
-  /**
-   * @desc 忽略的写入列名集合（create 与 update 都会剔除）
-   * @default []
-   */
-  readonly ignoreWriteColumns?: readonly CrudColumn<TTable>[]
-  /**
-   * @desc 读查询是否走 drizzle 查询缓存（`$withCache()`）；缺省关闭
-   * @default false
-   */
-  readonly cache?: boolean
-  /**
-   * @desc 叠加在所有读/改/删上的静态过滤条件（如 `eq(table.dataStatus, true)`）
-   * @default
-   */
-  readonly defaultWhere?: SQL
-  /**
-   * @desc 默认排序；缺省不排序（需要稳定的分页顺序就显式给，否则跨页可能重复/漏行）
-   * @default
-   */
-  readonly defaultOrderBy?: readonly (SQL | AnyPgColumn)[]
+  readonly metadata: Map<string, unknown>
 }
 
 /**
- * 插入/更新/删除的参数。
+ * 查询上下文
  */
-export type CrudPayload = Record<string, unknown>
+export interface QueryContext<
+  TTable extends PgTable = PgTable,
+> extends BaseContext<TTable> {
+  readonly operation: 'query' | 'count'
+  /**
+   * 查询选项（可修改）
+   */
+  options: CrudQueryOptions
+  /**
+   * 原始查询参数
+   */
+  readonly query: Record<string, unknown>
+}
+
 /**
- * 写入模式
+ * 单条创建上下文
  */
-export type CrudWriteMode = 'create' | 'update' | 'delete'
+export interface CreateSingleContext<
+  TTable extends PgTable = PgTable,
+> extends BaseContext<TTable> {
+  readonly operation: 'create'
+  /**
+   * 待写入数据（可修改）
+   */
+  values: CrudCreate<TTable>
+  /**
+   * 原始输入
+   */
+  readonly input: CrudCreate<TTable>
+}
+
+/**
+ * 批量创建上下文
+ */
+export interface CreateManyContext<
+  TTable extends PgTable = PgTable,
+> extends BaseContext<TTable> {
+  readonly operation: 'createMany'
+  /**
+   * 待写入数据（可修改）
+   */
+  values: CrudCreate<TTable>[]
+  /**
+   * 原始输入
+   */
+  readonly input: CrudCreate<TTable>[]
+}
+
+/**
+ * 创建上下文联合类型；插件可按 operation 或 Array.isArray 收窄
+ */
+export type CreateContext<TTable extends PgTable = PgTable> =
+  | CreateSingleContext<TTable>
+  | CreateManyContext<TTable>
+
+/**
+ * 更新上下文
+ */
+export interface UpdateContext<
+  TTable extends PgTable = PgTable,
+> extends BaseContext<TTable> {
+  readonly operation: 'update' | 'updateMany'
+  /**
+   * 目标记录 ID
+   */
+  readonly id: string | string[]
+  /**
+   * 更新数据（可修改）
+   */
+  values: CrudUpdate<TTable>
+  /**
+   * where 条件（可修改）
+   */
+  where?: SQL | undefined
+  /**
+   * 原始输入
+   */
+  readonly input: CrudUpdate<TTable>
+}
+
+/**
+ * 删除上下文
+ */
+export interface DeleteContext<
+  TTable extends PgTable = PgTable,
+> extends BaseContext<TTable> {
+  readonly operation: 'delete' | 'deleteMany'
+  /**
+   * 目标记录 ID
+   */
+  readonly id: string | string[]
+  /**
+   * where 条件（可修改）
+   */
+  where?: SQL | undefined
+  /**
+   * 是否软删除（可修改）
+   */
+  softDelete?: boolean | undefined
+  /**
+   * 软删除数据（插件填充）
+   */
+  values?: CrudUpdate<TTable> | undefined
+}
+
+/**
+ * 结果上下文
+ */
+export interface ResultContext<
+  TTable extends PgTable = PgTable,
+> extends BaseContext<TTable> {
+  /**
+   * 操作结果（可修改）
+   */
+  result: CrudResult<TTable>
+}
+
+/**
+ * 操作上下文联合类型
+ */
+export type OperationContext<TTable extends PgTable = PgTable> =
+  | QueryContext<TTable>
+  | CreateContext<TTable>
+  | UpdateContext<TTable>
+  | DeleteContext<TTable>
+
+/**
+ * 查询的可选覆盖项
+ *
+ * 传入后与仓储默认条件合并，插件仍可在 `beforeQuery` 中继续修改。
+ */
+export interface QueryOptions {
+  /**
+   * where 条件
+   */
+  where?: SQL | undefined
+  /**
+   * 排序
+   */
+  orderBy?: (SQL | AnyPgColumn)[] | undefined
+  /**
+   * 分组
+   */
+  groupBy?: (SQL | AnyPgColumn)[] | undefined
+}
+
+/**
+ * 仓储配置
+ */
+export interface RepositoryOptions<
+  TTable extends PgTable,
+  TIgnore extends keyof TTable['_']['columns'] = never,
+> {
+  /**
+   * 目标表
+   */
+  table: TTable
+  /**
+   * 主键列名
+   */
+  keyColumn?: string
+  /**
+   * 插件列表
+   */
+  plugins?: CrudPlugin<TTable>[]
+  /**
+   * 查询结果中不返回的列名，必须是表字段名；不影响写入。
+   */
+  ignoreColumns?: readonly TIgnore[]
+  /**
+   * 查询配置,包含默认排序、分组、分页等
+   */
+  queryOptions: CrudQueryOptions
+}

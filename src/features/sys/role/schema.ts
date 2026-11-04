@@ -4,8 +4,10 @@ import { baseQuerySchema } from '@/infra/model'
 import { sysRole, commonColumnsSchema } from '@/schemas'
 
 export const sysRoleSchema = createSelectSchema(sysRole, {
-  roleName: z.string().meta({ description: '角色名称', example: '管理员' }),
-  dataScope: z.number().meta({ description: '数据范围', example: 0 }),
+  roleName: (schema) =>
+    schema.meta({ description: '角色名称', examples: ['管理员'] }),
+  dataScope: (schema) =>
+    schema.meta({ description: '数据范围', examples: [0] }),
   ...commonColumnsSchema,
 }).meta({ id: 'SysRole' })
 
@@ -49,3 +51,10 @@ export const sysRoleUpdateReqSchema = sysRoleSchema
 export type SysRoleQuery = z.infer<typeof sysRoleQuerySchema>
 export type SysRoleCreateReq = z.infer<typeof sysRoleCreateReqSchema>
 export type SysRoleUpdateReq = z.infer<typeof sysRoleUpdateReqSchema>
+
+export const schema = {
+  response: sysRoleSchema,
+  create: sysRoleCreateReqSchema,
+  update: sysRoleUpdateReqSchema,
+  query: sysRoleQuerySchema,
+}

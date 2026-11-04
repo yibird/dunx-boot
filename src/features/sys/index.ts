@@ -1,7 +1,7 @@
 import { SysAuthModule } from './auth'
 import { SysRoleModule } from './role'
 import { SysPostModule } from './post'
-import { SysDictTypeModule } from './dict-type'
+import { SysDictTypeModule } from './dict'
 import { SysOperationLogModule } from './operation-log'
 import { SysDeptModule } from './dept'
 import { SysUserModule } from './user'

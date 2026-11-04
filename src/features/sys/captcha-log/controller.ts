@@ -1,9 +1,8 @@
 import { Controller, Get, type Input } from '@dunx/http'
 import { ApiDoc } from '@dunx/openapi'
 import { Api, apiRouteResponse } from '@/infra/model'
-import { sysCaptchaLogSchema } from '@/schemas'
 import { SysCaptchaLogService } from './service'
-import { sysCaptchaLogQuerySchema } from './model'
+import { sysCaptchaLogQuerySchema, sysCaptchaLogSchema } from './schema'
 
 const routes = {
   getPageList: {

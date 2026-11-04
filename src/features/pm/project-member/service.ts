@@ -1,4 +1,5 @@
 import { CrudService } from '@/infra/crud'
+import type { PmProjectMemberQuery } from './model'
 import { pmProjectMember } from '@/schemas'
 import { PmProjectMemberRepository } from './repository'
 
@@ -7,7 +8,9 @@ import { PmProjectMemberRepository } from './repository'
  */
 export class PmProjectMemberService extends CrudService<
   typeof pmProjectMember,
-  PmProjectMemberRepository
+  never,
+  PmProjectMemberRepository,
+  Partial<PmProjectMemberQuery>
 > {
   constructor(override readonly repository: PmProjectMemberRepository) {
     super(repository)

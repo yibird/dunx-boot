@@ -1,4 +1,5 @@
 import { CrudService } from '@/infra/crud'
+import type { SysMessageQuery } from './schema'
 import { sessionContext } from '@/infra/context'
 import { sysMessage } from '@/schemas'
 import { SysMessageRepository } from './repository'
@@ -9,7 +10,9 @@ import type { SysMessageReadQuery } from './schema'
  */
 export class SysMessageService extends CrudService<
   typeof sysMessage,
-  SysMessageRepository
+  never,
+  SysMessageRepository,
+  Partial<SysMessageQuery>
 > {
   constructor(override readonly repository: SysMessageRepository) {
     super(repository)
@@ -18,7 +21,7 @@ export class SysMessageService extends CrudService<
   /**
    * 发送人取当前会话；系统侧写入没有会话时留空
    */
-  override async create(input: Partial<typeof sysMessage.$inferInsert>) {
+  override async create(input: typeof sysMessage.$inferInsert) {
     const session = sessionContext.get()
     return super.create({
       ...input,

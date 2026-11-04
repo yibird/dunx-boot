@@ -6,6 +6,7 @@ import * as schema from './schema'
  * 显式保留连接列、同表多关系的别名及原非空关系的返回类型。
  */
 export const relations = defineRelations(schema, (r) => ({
+  // =============== 系统相关 ===============
   sysRole: {
     users: r.many.sysUser(),
   },
@@ -77,6 +78,17 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
   },
+  sysLocaleLang: {
+    translations: r.many.sysLocaleTrans(),
+  },
+  sysLocaleTrans: {
+    lang: r.one.sysLocaleLang({
+      from: r.sysLocaleTrans.langId,
+      to: r.sysLocaleLang.id,
+      optional: false,
+    }),
+  },
+  // =============== AI 相关 ===============
   aiModelProvider: {
     models: r.many.aiModel(),
     usageRecords: r.many.aiUsageRecord(),

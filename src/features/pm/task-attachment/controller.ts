@@ -7,9 +7,6 @@ import {
 } from './model'
 import { PmTaskAttachmentService } from './service'
 
-/**
- * 任务附件控制器：九个 CRUD 端点由基类生成
- */
 export class PmTaskAttachmentController extends CrudController({
   service: PmTaskAttachmentService,
   prefix: 'pm/task-attachment',

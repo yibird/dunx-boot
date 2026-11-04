@@ -1,6 +1,6 @@
 import { Module, RuntimeStats, provide } from '@dunx/core'
-import { QueryMetrics } from '@/infra/db/query-metrics'
-import { dbQueryMetrics } from '@/infra/db/db'
+import { QueryMetrics } from '@/infra/db/database/query-metrics'
+import { dbQueryMetrics } from '@/infra/db/database/db'
 import { SysMetricsController } from './controller'
 import { SysMetricsService } from './service'
 import { EventLoopLag } from '@dunx/core'

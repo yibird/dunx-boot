@@ -1,32 +1,24 @@
-import { desc } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 import { CrudRepository } from '@/infra/crud'
-import { eqIf, ilikeIf, mergeAnd } from '@/infra/db'
+import { mergeAnd } from '@/infra/db'
 import { sysMessage, sysMessageRead } from '@/schemas'
 import { BunSQLDatabase } from 'drizzle-orm/bun-sql/postgres'
-import type { SysMessageQuery, SysMessageReadQuery } from './schema'
+import type { SysMessageReadQuery } from './schema'
 
 /**
  * 系统消息仓储
  */
 export class SysMessageRepository extends CrudRepository<typeof sysMessage> {
-  constructor(readonly db: BunSQLDatabase) {
-    super({
-      table: sysMessage,
-      cache: true,
-      defaultOrderBy: [desc(sysMessage.id)],
-    })
-  }
-
-  override getQueryOptions(query: Partial<SysMessageQuery>) {
-    return {
-      where: mergeAnd(
-        ilikeIf(sysMessage.title, query.title),
-        eqIf(sysMessage.messageType, query.messageType),
-        eqIf(sysMessage.level, query.level),
-        eqIf(sysMessage.bizType, query.bizType),
-        eqIf(sysMessage.dataStatus, query.dataStatus)
-      ),
-    }
+  constructor(override readonly db: BunSQLDatabase) {
+    super(
+      {
+        table: sysMessage,
+        queryOptions: {
+          orderBy: [desc(sysMessage.id)],
+        },
+      },
+      db
+    )
   }
 
   /**
@@ -40,8 +32,10 @@ export class SysMessageRepository extends CrudRepository<typeof sysMessage> {
       .from(sysMessageRead)
       .where(
         mergeAnd(
-          eqIf(sysMessageRead.messageId, query.messageId),
-          eqIf(sysMessageRead.userId, query.userId)
+          query.messageId
+            ? eq(sysMessageRead.messageId, query.messageId)
+            : undefined,
+          query.userId ? eq(sysMessageRead.userId, query.userId) : undefined
         )
       )
       .orderBy(desc(sysMessageRead.createdAt))
@@ -52,10 +46,16 @@ export class SysMessageRepository extends CrudRepository<typeof sysMessage> {
    * 查询某个用户对某条消息的已读记录
    */
   async getReadMessageByUserId(messageId: string, userId: string) {
-    const [row] = await this.findMany<SysMessageReadQuery>({
-      messageId,
-      userId,
-    })
+    const [row] = await this.db
+      .select()
+      .from(sysMessageRead)
+      .where(
+        mergeAnd(
+          eq(sysMessageRead.messageId, messageId),
+          eq(sysMessageRead.userId, userId)
+        )
+      )
+      .limit(1)
     return row
   }
 

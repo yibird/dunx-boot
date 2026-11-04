@@ -4,12 +4,6 @@ import { boolean, integer, varchar } from 'drizzle-orm/pg-core'
 import { DEFAULT_TENANT_ID } from '@/constants'
 import { bigintString, bigserialString, datetime } from './types'
 
-export const idField = () =>
-  z
-    .unknown()
-    .transform((val) => String(val as bigint | number | string))
-    .pipe(z.string())
-
 /**
  * 表通用列字段集合
  */
@@ -34,6 +28,12 @@ export const commonColumns = {
   deleterName: varchar('deleter_name', { length: 64 }),
 }
 
+export const idField = () =>
+  z
+    .unknown()
+    .transform((val) => String(val as bigint | number | string))
+    .pipe(z.string())
+
 /**
  * 表通用列Schema集合
  */
@@ -41,9 +41,9 @@ export const commonColumnsSchema = {
   id: z.string().meta({ description: 'id', examples: ['1'] }),
   tenantId: z
     .string()
-    .meta({ description: '租户id，默认 1（默认租户）', examples: ['1'] }),
+    .meta({ description: '租户id,默认 1(默认租户)', examples: ['1'] }),
   dataStatus: z.boolean().meta({
-    description: '数据状态：false 表示禁用，true 表示启用',
+    description: '数据状态:false 表示禁用,true 表示启用',
     examples: [true, false],
   }),
   remark: z

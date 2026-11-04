@@ -1,4 +1,4 @@
-import { CrudController, CRUD_ENDPOINT } from '@/infra/crud'
+import { CrudController } from '@/infra/crud'
 import {
   aiSkillSchema,
   aiSkillCreateReqSchema,
@@ -12,14 +12,6 @@ export class AiSkillController extends CrudController({
   prefix: 'ai/skill',
   tags: ['Skill'],
   modelName: 'AiSkill',
-  includes: [
-    CRUD_ENDPOINT.GET_LIST,
-    CRUD_ENDPOINT.GET_PAGE_LIST,
-    CRUD_ENDPOINT.GET_RECORD,
-    CRUD_ENDPOINT.CREATE,
-    CRUD_ENDPOINT.UPDATE,
-    CRUD_ENDPOINT.DELETE,
-  ],
   schema: {
     response: aiSkillSchema,
     create: aiSkillCreateReqSchema,

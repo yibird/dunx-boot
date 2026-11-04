@@ -76,7 +76,7 @@ export class SysAuthService {
     return captcha === inputCaptcha
   }
 
-  async #issue(user: SysUserRow) {
+  async #issue(user: Omit<SysUserRow, 'password'>) {
     // 1.查询角色权限
     const permissions = await this.roleRepository.getPermissions(user.roleId)
     // 2.签发令牌

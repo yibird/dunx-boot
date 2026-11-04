@@ -7,9 +7,6 @@ import {
 } from './model'
 import { PmTaskService } from './service'
 
-/**
- * 任务控制器：九个 CRUD 端点由基类生成
- */
 export class PmTaskController extends CrudController({
   service: PmTaskService,
   prefix: 'pm/task',

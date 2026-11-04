@@ -3,7 +3,7 @@ import { sysCaptchaLog, type SysCaptchaLogInsert } from '@/schemas'
 import { desc, asc, count } from 'drizzle-orm'
 import { eqIf, mergeAnd } from '@/infra/db'
 import { Pager } from '@/infra/model'
-import type { SysCaptchaLogQuery } from './model'
+import type { SysCaptchaLogQuery } from './schema'
 
 export class SysCaptchaLogRepository {
   constructor(readonly db: BunSQLDatabase) {}
